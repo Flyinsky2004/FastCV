@@ -1,4 +1,4 @@
-import './assets/main.css'
+import '@/assets/css/main.css'
 
 import Antd from 'ant-design-vue';
 import ElementPlus from 'element-plus'
