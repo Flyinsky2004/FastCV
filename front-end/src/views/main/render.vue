@@ -7,6 +7,8 @@ import {useThemeStore} from "@/stores/themeStore.js";
 import router from "@/router/index.js";
 import Loading from "@/components/commmon/Loading.vue";
 import Modern from "@/components/templates/modern.vue";
+import Business from "@/components/templates/business.vue";
+import Forest from "@/components/templates/forest.vue";
 
 
 const themeStore=  useThemeStore()
@@ -63,7 +65,7 @@ const exportResumeAsPDF = async () => {
         </a>
       </div>
     </div>
-    <div class="h-20 p-4 bg-white w-3/4 mx-auto rounded shadow-lg grid grid-cols-8 mt-2">
+    <div class="h-20 p-4 bg-white w-3/4 mx-auto rounded shadow-lg grid grid-cols-8 mt-2 animate__animated animate__fadeIn">
       <button @click="router.push('/main')"
               class="basic-button bg-blue-500 hover:bg-blue-600 active:bg-blue-700 flex flex-nowrap place-items-center">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
@@ -85,6 +87,9 @@ const exportResumeAsPDF = async () => {
     >
       <Standard v-if="(Number)(currentId) === 1"/>
       <Modern v-if="(Number)(currentId) === 2"/>
+      <Business v-if="(Number)(currentId) === 3"/>
+      <Forest v-if="(Number)(currentId) === 4"/>
+
     </div>
   </div>
 </template>
