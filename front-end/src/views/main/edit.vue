@@ -58,6 +58,22 @@ const editingProfile = reactive({
   currentEditingProjects: {
     title: '',
     description: ''
+  },
+  // 记录当前正在编辑的对象索引，-1表示新增
+  currentEditingIndex: {
+    workExperience: -1,
+    skill: -1,
+    education: -1,
+    race: -1,
+    project: -1
+  },
+  // 是否处于编辑模式
+  isEditing: {
+    workExperience: false,
+    skill: false,
+    education: false,
+    race: false,
+    project: false
   }
 });
 
@@ -164,6 +180,169 @@ const fileToBase64 = (file) => {
     reader.readAsDataURL(file);
   });
 };
+
+// 编辑工作经历
+const editWorkExperience = (index) => {
+  const experience = editingProfile.profile.workExperience[index];
+  editingProfile.currentEditingExperience = { ...experience };
+  editingProfile.currentEditingIndex.workExperience = index;
+  editingProfile.isEditing.workExperience = true;
+};
+
+// 更新工作经历
+const updateWorkExperience = () => {
+  const index = editingProfile.currentEditingIndex.workExperience;
+  if (index >= 0) {
+    editingProfile.profile.workExperience[index] = { ...editingProfile.currentEditingExperience };
+    messageApi.success('工作经历更新成功！');
+  } else {
+    editingProfile.profile.workExperience.push({ ...editingProfile.currentEditingExperience });
+    messageApi.success('保存成功！您可以继续编写下一个工作经历！');
+  }
+  resetWorkExperienceForm();
+};
+
+// 重置工作经历表单
+const resetWorkExperienceForm = () => {
+  editingProfile.currentEditingExperience = {
+    workFor: '',
+    jobName: '',
+    position: '',
+    description: '',
+    startDate: dayjs(new Date()),
+    endDate: dayjs(new Date())
+  };
+  editingProfile.currentEditingIndex.workExperience = -1;
+  editingProfile.isEditing.workExperience = false;
+};
+
+// 编辑技能
+const editSkill = (index) => {
+  const skill = editingProfile.profile.skills[index];
+  editingProfile.currentEditingSkill = { ...skill };
+  editingProfile.currentEditingIndex.skill = index;
+  editingProfile.isEditing.skill = true;
+};
+
+// 更新技能
+const updateSkill = () => {
+  const index = editingProfile.currentEditingIndex.skill;
+  if (index >= 0) {
+    editingProfile.profile.skills[index] = { ...editingProfile.currentEditingSkill };
+    messageApi.success('技能更新成功！');
+  } else {
+    editingProfile.profile.skills.push({ ...editingProfile.currentEditingSkill });
+    messageApi.success('保存成功！您可以继续编写下一个技能！');
+  }
+  resetSkillForm();
+};
+
+// 重置技能表单
+const resetSkillForm = () => {
+  editingProfile.currentEditingSkill = {
+    title: '',
+    description: ''
+  };
+  editingProfile.currentEditingIndex.skill = -1;
+  editingProfile.isEditing.skill = false;
+};
+
+// 编辑教育经历
+const editEducation = (index) => {
+  const education = editingProfile.profile.education[index];
+  editingProfile.currentEditingEducation = { ...education };
+  editingProfile.currentEditingIndex.education = index;
+  editingProfile.isEditing.education = true;
+};
+
+// 更新教育经历
+const updateEducation = () => {
+  const index = editingProfile.currentEditingIndex.education;
+  if (index >= 0) {
+    editingProfile.profile.education[index] = { ...editingProfile.currentEditingEducation };
+    messageApi.success('教育经历更新成功！');
+  } else {
+    editingProfile.profile.education.push({ ...editingProfile.currentEditingEducation });
+    messageApi.success('保存成功！您可以继续编写下一个教育经历！');
+  }
+  resetEducationForm();
+};
+
+// 重置教育经历表单
+const resetEducationForm = () => {
+  editingProfile.currentEditingEducation = {
+    name: '',
+    level: '',
+    profess: '',
+    startDate: dayjs(new Date()),
+    endDate: dayjs(new Date())
+  };
+  editingProfile.currentEditingIndex.education = -1;
+  editingProfile.isEditing.education = false;
+};
+
+// 编辑竞赛经历
+const editRace = (index) => {
+  const race = editingProfile.profile.races[index];
+  editingProfile.currentEditingRace = { ...race };
+  editingProfile.currentEditingIndex.race = index;
+  editingProfile.isEditing.race = true;
+};
+
+// 更新竞赛经历
+const updateRace = () => {
+  const index = editingProfile.currentEditingIndex.race;
+  if (index >= 0) {
+    editingProfile.profile.races[index] = { ...editingProfile.currentEditingRace };
+    messageApi.success('竞赛经历更新成功！');
+  } else {
+    editingProfile.profile.races.push({ ...editingProfile.currentEditingRace });
+    messageApi.success('保存成功！您可以继续编写下一个竞赛经历！');
+  }
+  resetRaceForm();
+};
+
+// 重置竞赛经历表单
+const resetRaceForm = () => {
+  editingProfile.currentEditingRace = {
+    name: '',
+    level: '',
+    date: dayjs(new Date())
+  };
+  editingProfile.currentEditingIndex.race = -1;
+  editingProfile.isEditing.race = false;
+};
+
+// 编辑项目
+const editProject = (index) => {
+  const project = editingProfile.profile.projects[index];
+  editingProfile.currentEditingProjects = { ...project };
+  editingProfile.currentEditingIndex.project = index;
+  editingProfile.isEditing.project = true;
+};
+
+// 更新项目
+const updateProject = () => {
+  const index = editingProfile.currentEditingIndex.project;
+  if (index >= 0) {
+    editingProfile.profile.projects[index] = { ...editingProfile.currentEditingProjects };
+    messageApi.success('项目更新成功！');
+  } else {
+    editingProfile.profile.projects.push({ ...editingProfile.currentEditingProjects });
+    messageApi.success('保存成功！您可以继续编写下一个项目！');
+  }
+  resetProjectForm();
+};
+
+// 重置项目表单
+const resetProjectForm = () => {
+  editingProfile.currentEditingProjects = {
+    title: '',
+    description: ''
+  };
+  editingProfile.currentEditingIndex.project = -1;
+  editingProfile.isEditing.project = false;
+};
 </script>
 
 <template>
@@ -247,15 +426,20 @@ const fileToBase64 = (file) => {
               <h4 class="font-bold">{{ exp.jobName }} @ {{ exp.workFor }}</h4>
               <p>{{ exp.position }} · {{ exp.startDate?.format('YYYY-MM-DD') || '未设置' }} 至 {{ exp.endDate?.format('YYYY-MM-DD') || '未设置' }}</p>
               <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ exp.description }}</p>
-              <button @click="editingProfile.profile.workExperience.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
-                <span class="text-xl">×</span>
-              </button>
+              <div class="absolute top-2 right-2 flex">
+                <button @click="editWorkExperience(index)" class="text-blue-500 hover:text-blue-700 mr-2">
+                  <span class="text-sm">✎</span>
+                </button>
+                <button @click="editingProfile.profile.workExperience.splice(index, 1)" class="text-red-500 hover:text-red-700">
+                  <span class="text-xl">×</span>
+                </button>
+              </div>
             </div>
           </div>
           
           <!-- 添加新工作经历表单 -->
           <div>
-            <h3 class="font-bold mb-2">添加工作经历</h3>
+            <h3 class="font-bold mb-2">{{ editingProfile.isEditing.workExperience ? '编辑' : '添加' }}工作经历</h3>
             <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
               <a>工作单位</a>
               <input class="basic-blue-input" v-model="editingProfile.currentEditingExperience.workFor"/>
@@ -280,8 +464,15 @@ const fileToBase64 = (file) => {
               <a>离职时间</a>
               <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingExperience.endDate"/>
             </div>
-            <div class="mt-3">
-              <button @click="editingProfile.profile.workExperience.push({...editingProfile.currentEditingExperience}); messageApi.success('保存成功！您可以继续编写下一个工作经历！');" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存并继续</button>
+            <div class="mt-3 flex">
+              <button @click="updateWorkExperience" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">
+                {{ editingProfile.isEditing.workExperience ? '更新' : '保存并继续' }}
+              </button>
+              <button v-if="editingProfile.isEditing.workExperience" 
+                      @click="resetWorkExperienceForm" 
+                      class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">
+                取消编辑
+              </button>
             </div>
           </div>
         </a-collapse-panel>
@@ -293,15 +484,20 @@ const fileToBase64 = (file) => {
             <div v-for="(race, index) in editingProfile.profile.races" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
               <h4 class="font-bold">{{ race.name }}</h4>
               <p>{{ race.level }} · {{ race.date?.format('YYYY-MM-DD') || '未设置' }}</p>
-              <button @click="editingProfile.profile.races.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
-                <span class="text-xl">×</span>
-              </button>
+              <div class="absolute top-2 right-2 flex">
+                <button @click="editRace(index)" class="text-blue-500 hover:text-blue-700 mr-2">
+                  <span class="text-sm">✎</span>
+                </button>
+                <button @click="editingProfile.profile.races.splice(index, 1)" class="text-red-500 hover:text-red-700">
+                  <span class="text-xl">×</span>
+                </button>
+              </div>
             </div>
           </div>
           
           <!-- 添加新竞赛经历表单 -->
           <div>
-            <h3 class="font-bold mb-2">添加竞赛经历</h3>
+            <h3 class="font-bold mb-2">{{ editingProfile.isEditing.race ? '编辑' : '添加' }}竞赛经历</h3>
             <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
               <a>竞赛名称</a>
               <input class="basic-blue-input" v-model="editingProfile.currentEditingRace.name"/>
@@ -314,8 +510,15 @@ const fileToBase64 = (file) => {
               <a>获得时间</a>
               <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingRace.date"/>
             </div>
-            <div class="mt-3">
-              <button @click="editingProfile.profile.races.push({...editingProfile.currentEditingRace}); messageApi.success('保存成功！您可以继续编写下一个竞赛经历！');" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存并继续</button>
+            <div class="mt-3 flex">
+              <button @click="updateRace" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">
+                {{ editingProfile.isEditing.race ? '更新' : '保存并继续' }}
+              </button>
+              <button v-if="editingProfile.isEditing.race" 
+                      @click="resetRaceForm" 
+                      class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">
+                取消编辑
+              </button>
             </div>
           </div>
         </a-collapse-panel>
@@ -328,15 +531,20 @@ const fileToBase64 = (file) => {
               <h4 class="font-bold">{{ edu.name }}</h4>
               <p>{{ edu.level }} - {{ edu.profess }}</p>
               <p>{{ edu.startDate?.format('YYYY-MM-DD') || '未设置' }} 至 {{ edu.endDate?.format('YYYY-MM-DD') || '未设置' }}</p>
-              <button @click="editingProfile.profile.education.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
-                <span class="text-xl">×</span>
-              </button>
+              <div class="absolute top-2 right-2 flex">
+                <button @click="editEducation(index)" class="text-blue-500 hover:text-blue-700 mr-2">
+                  <span class="text-sm">✎</span>
+                </button>
+                <button @click="editingProfile.profile.education.splice(index, 1)" class="text-red-500 hover:text-red-700">
+                  <span class="text-xl">×</span>
+                </button>
+              </div>
             </div>
           </div>
           
           <!-- 添加新教育经历表单 -->
           <div>
-            <h3 class="font-bold mb-2">添加教育经历</h3>
+            <h3 class="font-bold mb-2">{{ editingProfile.isEditing.education ? '编辑' : '添加' }}教育经历</h3>
             <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
               <a>学校名称</a>
               <input class="basic-blue-input" v-model="editingProfile.currentEditingEducation.name"/>
@@ -357,8 +565,15 @@ const fileToBase64 = (file) => {
               <a>毕业时间</a>
               <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingEducation.endDate"/>
             </div>
-            <div class="mt-3">
-              <button @click="editingProfile.profile.education.push({...editingProfile.currentEditingEducation}); messageApi.success('保存成功！您可以继续编写下一个教育经历！');" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存并继续</button>
+            <div class="mt-3 flex">
+              <button @click="updateEducation" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">
+                {{ editingProfile.isEditing.education ? '更新' : '保存并继续' }}
+              </button>
+              <button v-if="editingProfile.isEditing.education" 
+                      @click="resetEducationForm" 
+                      class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">
+                取消编辑
+              </button>
             </div>
           </div>
         </a-collapse-panel>
@@ -370,15 +585,20 @@ const fileToBase64 = (file) => {
             <div v-for="(project, index) in editingProfile.profile.projects" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
               <h4 class="font-bold">{{ project.title }}</h4>
               <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ project.description }}</p>
-              <button @click="editingProfile.profile.projects.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
-                <span class="text-xl">×</span>
-              </button>
+              <div class="absolute top-2 right-2 flex">
+                <button @click="editProject(index)" class="text-blue-500 hover:text-blue-700 mr-2">
+                  <span class="text-sm">✎</span>
+                </button>
+                <button @click="editingProfile.profile.projects.splice(index, 1)" class="text-red-500 hover:text-red-700">
+                  <span class="text-xl">×</span>
+                </button>
+              </div>
             </div>
           </div>
           
           <!-- 添加新项目表单 -->
           <div>
-            <h3 class="font-bold mb-2">添加项目</h3>
+            <h3 class="font-bold mb-2">{{ editingProfile.isEditing.project ? '编辑' : '添加' }}项目</h3>
             <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
               <a>项目名称</a>
               <input class="basic-blue-input" v-model="editingProfile.currentEditingProjects.title"/>
@@ -387,8 +607,15 @@ const fileToBase64 = (file) => {
               <a>简介</a>
               <textarea class="basic-blue-input" v-model="editingProfile.currentEditingProjects.description" rows="5"/>
             </div>
-            <div class="mt-3">
-              <button @click="editingProfile.profile.projects.push({...editingProfile.currentEditingProjects}); messageApi.success('保存成功！您可以继续编写下一个项目！');" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存并继续</button>
+            <div class="mt-3 flex">
+              <button @click="updateProject" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">
+                {{ editingProfile.isEditing.project ? '更新' : '保存并继续' }}
+              </button>
+              <button v-if="editingProfile.isEditing.project" 
+                      @click="resetProjectForm" 
+                      class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">
+                取消编辑
+              </button>
             </div>
           </div>
         </a-collapse-panel>
@@ -400,15 +627,20 @@ const fileToBase64 = (file) => {
             <div v-for="(skill, index) in editingProfile.profile.skills" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
               <h4 class="font-bold">{{ skill.title }}</h4>
               <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ skill.description }}</p>
-              <button @click="editingProfile.profile.skills.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
-                <span class="text-xl">×</span>
-              </button>
+              <div class="absolute top-2 right-2 flex">
+                <button @click="editSkill(index)" class="text-blue-500 hover:text-blue-700 mr-2">
+                  <span class="text-sm">✎</span>
+                </button>
+                <button @click="editingProfile.profile.skills.splice(index, 1)" class="text-red-500 hover:text-red-700">
+                  <span class="text-xl">×</span>
+                </button>
+              </div>
             </div>
           </div>
           
           <!-- 添加新技能表单 -->
           <div>
-            <h3 class="font-bold mb-2">添加技能</h3>
+            <h3 class="font-bold mb-2">{{ editingProfile.isEditing.skill ? '编辑' : '添加' }}技能</h3>
             <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
               <a>技能名称</a>
               <input class="basic-blue-input" v-model="editingProfile.currentEditingSkill.title"/>
@@ -417,8 +649,15 @@ const fileToBase64 = (file) => {
               <a>技能描述</a>
               <textarea class="basic-blue-input" v-model="editingProfile.currentEditingSkill.description" rows="5"/>
             </div>
-            <div class="mt-3">
-              <button @click="editingProfile.profile.skills.push({...editingProfile.currentEditingSkill}); messageApi.success('保存成功！您可以继续编写下一个技能！');" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存并继续</button>
+            <div class="mt-3 flex">
+              <button @click="updateSkill" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">
+                {{ editingProfile.isEditing.skill ? '更新' : '保存并继续' }}
+              </button>
+              <button v-if="editingProfile.isEditing.skill" 
+                      @click="resetSkillForm" 
+                      class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">
+                取消编辑
+              </button>
             </div>
           </div>
         </a-collapse-panel>
