@@ -11,7 +11,7 @@ export default defineConfig({
     vue(),
     vueJsx(),
     vueDevTools({
-      launchEditor: 'idea'
+      launchEditor: 'cursor'
     }),
   ],
   resolve: {

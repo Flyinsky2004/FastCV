@@ -1,0 +1,449 @@
+<script setup>
+import {onBeforeMount, reactive, ref} from "vue";
+import {message} from 'ant-design-vue';
+import router from "@/router/index.js";
+import {dayjs} from "element-plus";
+import {defaultProfile} from '@/hooks/data';
+
+const [messageApi, contextHolder] = message.useMessage();
+
+// 获取路由参数
+const profileIndex = ref(parseInt(router.currentRoute.value.params.index));
+const isNewProfile = ref(profileIndex.value === -1);
+
+// 编辑表单数据
+const editingProfile = reactive({
+  profile: {
+    name: '',
+    jobName: '',
+    phoneNumber: '',
+    emailAddress: '',
+    position: '',
+    birthDate: null,
+    webSite: '',
+    github: '',
+    linkIn: '',
+    workExperience: [],
+    skills: [],
+    education: [],
+    races: [],
+    projects: [],
+    avatar: ''
+  },
+  addFormActiveKey: 1,
+  currentEditingExperience: {
+    workFor: '',
+    jobName: '',
+    position: '',
+    description: '',
+    startDate: dayjs(new Date()),
+    endDate: dayjs(new Date())
+  },
+  currentEditingSkill: {
+    title: '',
+    description: ''
+  },
+  currentEditingEducation: {
+    name: '',
+    level: '',
+    profess: '',
+    startDate: dayjs(new Date()),
+    endDate: dayjs(new Date())
+  },
+  currentEditingRace: {
+    name: '',
+    level: '',
+    date: dayjs(new Date())
+  },
+  currentEditingProjects: {
+    title: '',
+    description: ''
+  }
+});
+
+// 页面加载时初始化数据
+onBeforeMount(() => {
+  initData();
+});
+
+// 初始化数据
+const initData = () => {
+  // 从本地存储获取资料列表
+  const profiles = JSON.parse(localStorage.getItem("profiles")) || [defaultProfile];
+  
+  if (!isNewProfile.value && profileIndex.value >= 0 && profileIndex.value < profiles.length) {
+    // 编辑现有资料
+    const currentProfile = profiles[profileIndex.value];
+    
+    // 深拷贝以避免直接修改引用
+    editingProfile.profile = JSON.parse(JSON.stringify(currentProfile));
+    
+    // 处理日期格式
+    if (editingProfile.profile.birthDate) {
+      editingProfile.profile.birthDate = dayjs(editingProfile.profile.birthDate);
+    }
+    
+    // 处理工作经历中的日期
+    if (editingProfile.profile.workExperience && editingProfile.profile.workExperience.length > 0) {
+      editingProfile.profile.workExperience.forEach(exp => {
+        if (exp.startDate) exp.startDate = dayjs(exp.startDate);
+        if (exp.endDate) exp.endDate = dayjs(exp.endDate);
+      });
+    }
+    
+    // 处理教育经历中的日期
+    if (editingProfile.profile.education && editingProfile.profile.education.length > 0) {
+      editingProfile.profile.education.forEach(edu => {
+        if (edu.startDate) edu.startDate = dayjs(edu.startDate);
+        if (edu.endDate) edu.endDate = dayjs(edu.endDate);
+      });
+    }
+    
+    // 处理竞赛经历中的日期
+    if (editingProfile.profile.races && editingProfile.profile.races.length > 0) {
+      editingProfile.profile.races.forEach(race => {
+        if (race.date) race.date = dayjs(race.date);
+      });
+    }
+  }
+};
+
+// 保存编辑的资料
+const saveProfile = () => {
+  // 从本地存储获取资料列表
+  const profiles = JSON.parse(localStorage.getItem("profiles")) || [defaultProfile];
+  
+  if (isNewProfile.value) {
+    // 添加新资料
+    profiles.push(editingProfile.profile);
+    messageApi.success("已成功添加新资料");
+  } else {
+    // 更新现有资料
+    profiles[profileIndex.value] = editingProfile.profile;
+    messageApi.success("资料修改成功");
+  }
+  
+  // 保存回本地存储
+  try {
+    localStorage.setItem("profiles", JSON.stringify(profiles));
+    // 返回主页
+    router.push('/main');
+  } catch (e) {
+    messageApi.error("保存失败：" + e);
+  }
+};
+
+// 取消编辑，返回主页
+const cancelEdit = () => {
+  router.push('/main');
+};
+
+// 处理文件选择，将图片转换为 Base64
+const handleFileSelect = async (event) => {
+  const file = event.target.files[0];
+  if (!file) {
+    console.error('未选择文件');
+    return;
+  }
+
+  try {
+    const base64String = await fileToBase64(file);
+    editingProfile.profile.avatar = base64String;
+  } catch (error) {
+    console.error('图片转换错误:', error);
+    messageApi.error('图片转换失败');
+  }
+};
+
+// 文件转 Base64
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
+  });
+};
+</script>
+
+<template>
+  <contextHolder/>
+  <div class="h-screen overflow-y-auto bg-white bg-opacity-70 animate__animated animate__fadeIn">
+    <!-- 导航栏 -->
+    <div class="h-10 bg-white shadow-md shadow-gray-400 place-items-center flex">
+      <div class="font-bold text-xl flex-grow text-center title bg-clip-text bg-gradient-to-r from-purple-500 via-red-500 to-pink-500 text-transparent select-none cursor-pointer" @click="router.push('/')">FastCV</div>
+      <div>
+        <a href="https://github.com/Flyinsky2004/FastCV">
+          <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
+          </svg>
+        </a>
+      </div>
+    </div>
+    
+    <!-- 主体内容 -->
+    <div class="h-fit min-h-screen bg-blue-200 bg-opacity-10 backdrop-blur-md shadow-xl w-3/4 mx-auto rounded-xl mt-2 p-4 hover:shadow-lg transition-all transition-duration-300">
+      <div class="flex mb-4">
+        <h1 class="font-bold text-2xl flex-grow">{{ isNewProfile ? '创建新资料' : '编辑资料' }}</h1>
+        <div class="grid grid-cols-[1fr,1fr] gap-2">
+          <button @click="saveProfile" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存</button>
+          <button @click="cancelEdit" class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">取消</button>
+        </div>
+      </div>
+      
+      <!-- 表单内容 -->
+      <a-collapse v-model:activeKey="editingProfile.addFormActiveKey">
+        <a-collapse-panel key="1" header="基本资料">
+          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+            <a>头像</a>
+            <div class="flex items-center">
+              <input class="basic-blue-input" type="file" @change="handleFileSelect" accept="image/*">
+              <img v-if="editingProfile.profile.avatar" :src="editingProfile.profile.avatar" class="w-16 h-16 ml-4 rounded-full object-cover border-2 border-gray-300">
+            </div>
+          </div>
+          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+            <a>姓名</a>
+            <input class="basic-blue-input" v-model="editingProfile.profile.name"/>
+          </div>
+          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+            <a>应聘岗位</a>
+            <input class="basic-blue-input" v-model="editingProfile.profile.jobName"/>
+          </div>
+          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+            <a>电话</a>
+            <input class="basic-blue-input" v-model="editingProfile.profile.phoneNumber"/>
+          </div>
+          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+            <a>电子邮箱</a>
+            <input class="basic-blue-input" v-model="editingProfile.profile.emailAddress"/>
+          </div>
+          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+            <a>城市</a>
+            <input class="basic-blue-input" v-model="editingProfile.profile.position"/>
+          </div>
+          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+            <a>生日</a>
+            <a-date-picker class="basic-blue-input" v-model:value="editingProfile.profile.birthDate"/>
+          </div>
+          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+            <a>个人网站</a>
+            <input class="basic-blue-input" v-model="editingProfile.profile.webSite"/>
+          </div>
+          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+            <a>Github主页</a>
+            <input class="basic-blue-input" v-model="editingProfile.profile.github"/>
+          </div>
+          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+            <a>领英主页</a>
+            <input class="basic-blue-input" v-model="editingProfile.profile.linkIn"/>
+          </div>
+        </a-collapse-panel>
+        
+        <a-collapse-panel key="2" header="工作经历">
+          <!-- 已添加的工作经历列表 -->
+          <div v-if="editingProfile.profile.workExperience && editingProfile.profile.workExperience.length > 0" class="mb-4 border-b pb-4">
+            <h3 class="font-bold mb-2">已添加的工作经历</h3>
+            <div v-for="(exp, index) in editingProfile.profile.workExperience" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
+              <h4 class="font-bold">{{ exp.jobName }} @ {{ exp.workFor }}</h4>
+              <p>{{ exp.position }} · {{ exp.startDate?.format('YYYY-MM-DD') || '未设置' }} 至 {{ exp.endDate?.format('YYYY-MM-DD') || '未设置' }}</p>
+              <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ exp.description }}</p>
+              <button @click="editingProfile.profile.workExperience.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
+                <span class="text-xl">×</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- 添加新工作经历表单 -->
+          <div>
+            <h3 class="font-bold mb-2">添加工作经历</h3>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>工作单位</a>
+              <input class="basic-blue-input" v-model="editingProfile.currentEditingExperience.workFor"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>岗位</a>
+              <input class="basic-blue-input" v-model="editingProfile.currentEditingExperience.jobName"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>城市</a>
+              <input class="basic-blue-input" v-model="editingProfile.currentEditingExperience.position"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>描述</a>
+              <textarea class="basic-blue-input" v-model="editingProfile.currentEditingExperience.description" rows="5"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>起始时间</a>
+              <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingExperience.startDate"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>离职时间</a>
+              <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingExperience.endDate"/>
+            </div>
+            <div class="mt-3">
+              <button @click="editingProfile.profile.workExperience.push({...editingProfile.currentEditingExperience}); messageApi.success('保存成功！您可以继续编写下一个工作经历！');" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存并继续</button>
+            </div>
+          </div>
+        </a-collapse-panel>
+        
+        <a-collapse-panel key="3" header="竞赛经历">
+          <!-- 已添加的竞赛经历列表 -->
+          <div v-if="editingProfile.profile.races && editingProfile.profile.races.length > 0" class="mb-4 border-b pb-4">
+            <h3 class="font-bold mb-2">已添加的竞赛经历</h3>
+            <div v-for="(race, index) in editingProfile.profile.races" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
+              <h4 class="font-bold">{{ race.name }}</h4>
+              <p>{{ race.level }} · {{ race.date?.format('YYYY-MM-DD') || '未设置' }}</p>
+              <button @click="editingProfile.profile.races.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
+                <span class="text-xl">×</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- 添加新竞赛经历表单 -->
+          <div>
+            <h3 class="font-bold mb-2">添加竞赛经历</h3>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>竞赛名称</a>
+              <input class="basic-blue-input" v-model="editingProfile.currentEditingRace.name"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>奖项</a>
+              <input class="basic-blue-input" v-model="editingProfile.currentEditingRace.level"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>获得时间</a>
+              <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingRace.date"/>
+            </div>
+            <div class="mt-3">
+              <button @click="editingProfile.profile.races.push({...editingProfile.currentEditingRace}); messageApi.success('保存成功！您可以继续编写下一个竞赛经历！');" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存并继续</button>
+            </div>
+          </div>
+        </a-collapse-panel>
+        
+        <a-collapse-panel key="4" header="教育经历">
+          <!-- 已添加的教育经历列表 -->
+          <div v-if="editingProfile.profile.education && editingProfile.profile.education.length > 0" class="mb-4 border-b pb-4">
+            <h3 class="font-bold mb-2">已添加的教育经历</h3>
+            <div v-for="(edu, index) in editingProfile.profile.education" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
+              <h4 class="font-bold">{{ edu.name }}</h4>
+              <p>{{ edu.level }} - {{ edu.profess }}</p>
+              <p>{{ edu.startDate?.format('YYYY-MM-DD') || '未设置' }} 至 {{ edu.endDate?.format('YYYY-MM-DD') || '未设置' }}</p>
+              <button @click="editingProfile.profile.education.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
+                <span class="text-xl">×</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- 添加新教育经历表单 -->
+          <div>
+            <h3 class="font-bold mb-2">添加教育经历</h3>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>学校名称</a>
+              <input class="basic-blue-input" v-model="editingProfile.currentEditingEducation.name"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>学历</a>
+              <input class="basic-blue-input" v-model="editingProfile.currentEditingEducation.level"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>专业方向</a>
+              <input class="basic-blue-input" v-model="editingProfile.currentEditingEducation.profess"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>入学时间</a>
+              <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingEducation.startDate"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>毕业时间</a>
+              <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingEducation.endDate"/>
+            </div>
+            <div class="mt-3">
+              <button @click="editingProfile.profile.education.push({...editingProfile.currentEditingEducation}); messageApi.success('保存成功！您可以继续编写下一个教育经历！');" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存并继续</button>
+            </div>
+          </div>
+        </a-collapse-panel>
+        
+        <a-collapse-panel key="5" header="个人项目">
+          <!-- 已添加的项目列表 -->
+          <div v-if="editingProfile.profile.projects && editingProfile.profile.projects.length > 0" class="mb-4 border-b pb-4">
+            <h3 class="font-bold mb-2">已添加的项目</h3>
+            <div v-for="(project, index) in editingProfile.profile.projects" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
+              <h4 class="font-bold">{{ project.title }}</h4>
+              <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ project.description }}</p>
+              <button @click="editingProfile.profile.projects.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
+                <span class="text-xl">×</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- 添加新项目表单 -->
+          <div>
+            <h3 class="font-bold mb-2">添加项目</h3>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>项目名称</a>
+              <input class="basic-blue-input" v-model="editingProfile.currentEditingProjects.title"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>简介</a>
+              <textarea class="basic-blue-input" v-model="editingProfile.currentEditingProjects.description" rows="5"/>
+            </div>
+            <div class="mt-3">
+              <button @click="editingProfile.profile.projects.push({...editingProfile.currentEditingProjects}); messageApi.success('保存成功！您可以继续编写下一个项目！');" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存并继续</button>
+            </div>
+          </div>
+        </a-collapse-panel>
+        
+        <a-collapse-panel key="6" header="技能">
+          <!-- 已添加的技能列表 -->
+          <div v-if="editingProfile.profile.skills && editingProfile.profile.skills.length > 0" class="mb-4 border-b pb-4">
+            <h3 class="font-bold mb-2">已添加的技能</h3>
+            <div v-for="(skill, index) in editingProfile.profile.skills" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
+              <h4 class="font-bold">{{ skill.title }}</h4>
+              <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ skill.description }}</p>
+              <button @click="editingProfile.profile.skills.splice(index, 1)" class="absolute top-2 right-2 text-red-500 hover:text-red-700">
+                <span class="text-xl">×</span>
+              </button>
+            </div>
+          </div>
+          
+          <!-- 添加新技能表单 -->
+          <div>
+            <h3 class="font-bold mb-2">添加技能</h3>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>技能名称</a>
+              <input class="basic-blue-input" v-model="editingProfile.currentEditingSkill.title"/>
+            </div>
+            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
+              <a>技能描述</a>
+              <textarea class="basic-blue-input" v-model="editingProfile.currentEditingSkill.description" rows="5"/>
+            </div>
+            <div class="mt-3">
+              <button @click="editingProfile.profile.skills.push({...editingProfile.currentEditingSkill}); messageApi.success('保存成功！您可以继续编写下一个技能！');" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存并继续</button>
+            </div>
+          </div>
+        </a-collapse-panel>
+      </a-collapse>
+      
+      <!-- 底部保存按钮 -->
+      <div class="flex justify-center mt-6">
+        <button @click="saveProfile" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-4 px-8">保存资料</button>
+        <button @click="cancelEdit" class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700 px-8">取消</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+.basic-blue-input {
+  @apply border p-2 rounded-md focus:outline-none focus:border-blue-600 w-full;
+}
+.basic-button {
+  @apply rounded-md py-2 px-4 text-white font-medium transition-colors duration-200;
+}
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style> 

@@ -87,7 +87,9 @@ const openLink = (link) => {
         </div>
         <div class="w-full flex mt-2 flex-col">
           <h1 class="mx-auto text-gray-500">一个纯前端，由Vue.js构建的简历模版渲染工具。</h1>
-          <h1 class="mx-auto text-gray-500">本工具无任何联网功能，依赖浏览器localStorage持久缓存数据。</h1>
+          <h1 class="mx-auto text-gray-500"><a class="line-through">本工具无任何联网功能，</a></h1>
+          <h1 class="mx-auto text-gray-500"><a class="text-red-500">2025.4.15Update:新增AI润色和模拟答辩功能</a></h1>
+          <h1 class="mx-auto text-gray-500">依赖浏览器localStorage持久缓存数据。</h1>
         </div>
       </div>
     </div>
