@@ -4,9 +4,24 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      name: 'index',
+      name: 'framework',
       path: '/',
-      component: () => import('@/views/inedx.vue')
+      component: () => import('@/components/Layout.vue'),
+      children:[
+        {
+          name: 'index',
+          path: '/',
+          component: () => import('@/views/inedx.vue')
+        },{
+          name: 'login',
+          path: '/login',
+          component: () => import('@/views/auth/Login.vue')
+        },{
+          name: 'register',
+          path: '/register',
+          component: () => import('@/views/auth/Register.vue')
+        }
+      ]
     },{
       name: 'main',
       path: '/main',

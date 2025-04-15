@@ -1,28 +1,125 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-.content-box-bg-color-shaodw{
-    @apply bg-gray-100 dark:bg-[rgb(36,36,36)] shadow-md shadow-gray-300 dark:shadow-blue-600;
+.content-box-bg-color-shaodw {
+  @apply bg-gray-100 dark:bg-[rgb(36,36,36)] shadow-md shadow-gray-300 dark:shadow-blue-600;
 }
-.basic-color-switch{
-    @apply text-black
+.basic-color-switch {
+  @apply text-black
     dark:text-white;
 }
 .basic-blue-input {
-    @apply w-full py-1 border dark:border-gray-800 rounded-md shadow-sm focus:outline-none focus:shadow focus:shadow-gray-400 dark:focus:shadow-blue-600 dark:bg-black transition-all;
+  @apply w-full py-1 border dark:border-gray-800 rounded-md shadow-sm focus:outline-none focus:shadow focus:shadow-gray-400 dark:focus:shadow-blue-600 dark:bg-black transition-all;
 }
 
 .basic-button {
-    @apply w-fit p-2 rounded-md text-white;
+  @apply w-fit p-2 rounded-md text-white;
+}
+@layer base {
+  :root {
+    /* Light Theme Colors */
+    --background: 0 0% 100%; /* White background */
+    --foreground: 222.2 47.4% 11.2%; /* Dark text */
+    --card: 0 0% 100%; /* White card background */
+    --card-foreground: 222.2 47.4% 11.2%; /* Dark text on card */
+    --popover: 0 0% 100%; /* White popover background */
+    --popover-foreground: 222.2 47.4% 11.2%; /* Dark text on popover */
+    --primary: 210 90% 50%; /* Blue for primary buttons/links */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
+    --secondary: 210 40% 96.1%; /* Light grey/blueish background for secondary elements */
+    --secondary-foreground: 222.2 47.4% 11.2%; /* Dark text on secondary */
+    --muted: 210 40% 96.1%; /* Lighter grey for placeholders, subtle borders */
+    --muted-foreground: 215.4 16.3% 46.9%; /* Grey text for muted elements */
+    --accent: 210 40% 96.1%; /* Accent color (adjust as needed) */
+    --accent-foreground: 222.2 47.4% 11.2%; /* Text on accent */
+    --destructive: 0 84.2% 60.2%; /* Red for destructive actions */
+    --destructive-foreground: 0 0% 98%; /* Text on destructive */
+    --border: 214.3 31.8% 91.4%; /* Light grey border */
+    --input: 214.3 31.8% 91.4%; /* Light grey input background/border */
+    --ring: 215 20.2% 65.1%; /* Focus ring color */
+    --grid-bg: 0 0% 100%; /* Grid background color */
+    --grid-opacity: 0.7; /* Grid background opacity */
+    --grid-size: 20px; /* Grid size */
+    --grid-color: 0 0% 0%; /* Grid color */
+    --grid-line-opacity: 0.1; /* Grid line opacity */
+
+    --radius: 0.5rem; /* Example border radius */
+
+    /* Specific element colors from image (Light) */
+    --header-bg: 0 0% 100%;
+    --header-text: 222.2 47.4% 11.2%;
+    --header-nav-hover-bg: 210 40% 96.1%;
+    --input-placeholder: 215.4 16.3% 46.9%;
+    --link-color: 210 90% 50%; /* Blue links */
+    --icon-color: 215.4 16.3% 56.9%; /* Default icon color */
+    --profile-badge-bg: 2 84% 68%; /* Approx 'W' badge background */
+    --profile-badge-text: 0 0% 100%;
+    --footer-bg: 0 0% 100%;
+    --footer-text: 215.4 16.3% 46.9%;
+  }
+
+  .dark {
+    /* Dark Theme Colors */
+    --background: 224 71% 4%; /* Very dark background */
+    --foreground: 210 40% 98%; /* Light text */
+    --card: 224 71% 10%; /* Dark card background */
+    --card-foreground: 210 40% 98%; /* Light text on card */
+    --popover: 224 71% 4%; /* Dark popover background */
+    --popover-foreground: 210 40% 98%; /* Light text on popover */
+    --primary: 210 90% 60%; /* Slightly lighter/brighter blue for dark mode */
+    --primary-foreground: 0 0% 100%; /* White text on primary */
+    --secondary: 215 28% 17%; /* Dark grey background for secondary elements */
+    --secondary-foreground: 210 40% 98%; /* Light text on secondary */
+    --muted: 215 28% 17%; /* Darker grey for placeholders, subtle borders */
+    --muted-foreground: 215 20.2% 65.1%; /* Lighter grey text for muted elements */
+    --accent: 215 28% 17%; /* Accent color (adjust as needed) */
+    --accent-foreground: 210 40% 98%; /* Text on accent */
+    --destructive: 0 62.8% 50.6%; /* Darker Red */
+    --destructive-foreground: 0 0% 98%; /* Text on destructive */
+    --border: 215 28% 17%; /* Dark grey border */
+    --input: 215 28% 17%; /* Dark grey input background/border */
+    --ring: 215 20.2% 65.1%; /* Focus ring color (might need adjustment) */
+    --grid-bg: 0 0% 0%; /* Grid background color */
+    --grid-opacity: 0.95; /* Grid background opacity */
+    --grid-color: 0 0% 50%; /* Grid color - medium gray */
+    --grid-line-opacity: 0.15; /* Grid line opacity */
+
+    /* Specific element colors from image (Dark) */
+    --header-bg: 224 71% 4%;
+    --header-text: 210 40% 98%;
+    --header-nav-hover-bg: 215 28% 17%;
+    --input-placeholder: 215 20.2% 65.1%;
+    --link-color: 210 90% 60%; /* Brighter blue links */
+    --icon-color: 215 20.2% 75.1%; /* Lighter icon color */
+    --profile-badge-bg: 2 84% 68%; /* Same 'W' badge background? Adjust if needed */
+    --profile-badge-text: 0 0% 100%;
+    --footer-bg: 224 71% 4%;
+    --footer-text: 215 20.2% 65.1%;
+  }
+}
+
+/* Apply base body styles */
+@layer base {
+  body {
+    font-feature-settings: "rlig" 1, "calt" 1; /* Optional: Good font defaults */
+  }
 }
 
 body {
-    @apply bg-white dark:bg-black;
-    margin: 0;
-    padding: 0;
+  @apply bg-white dark:bg-black;
+  margin: 0;
+  padding: 0;
 }
 
 .theme-transition,
 .theme-transition * {
-    transition: background-color 0.5s, color 0.5s !important;
+  transition: background-color 0.5s, color 0.5s !important;
+}
+
+.grid-background {
+  background-color: hsla(var(--grid-bg) / var(--grid-opacity));
+  background-image: 
+    linear-gradient(hsla(var(--grid-color) / var(--grid-line-opacity)) 1px, transparent 1px),
+    linear-gradient(90deg, hsla(var(--grid-color) / var(--grid-line-opacity)) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
 }

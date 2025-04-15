@@ -1,11 +1,24 @@
 <script setup>
-import {useThemeStore} from "@/stores/themeStore.js";
-import ThemeSwitch from "@/components/commmon/themeSwitch.vue";
+import {RouterView} from "vue-router";
+import {useThemeStore} from "@/stores/themeStore";
+import {theme} from "ant-design-vue";
 const themeStore = useThemeStore()
+
 themeStore.initTheme()
+import zhCN from 'ant-design-vue/es/locale/zh_CN';
+import dayjs from 'dayjs';
+import 'dayjs/locale/zh-cn';
+dayjs.locale('zh-cn');
 </script>
 <template>
-  <div class="h-screen overflow-y-hidden bkg">
+  <a-config-provider
+      :theme="{
+      algorithm: themeStore.isDark ?theme.darkAlgorithm:theme.defaultAlgorithm,
+    }"
+      :locale="zhCN"
+  >
+  </a-config-provider>
+  <div class="h-screen overflow-y-hidden bkg bkg-theme-switch">
 <!--    <ThemeSwitch class="fixed top-0 right-0"/>-->
     <RouterView/>
   </div>
