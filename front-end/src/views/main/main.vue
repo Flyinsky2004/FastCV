@@ -5,6 +5,7 @@ import template1 from '@/assets/imgs/templates/template1.webp'
 import template2 from '@/assets/imgs/templates/template2.webp'
 import template3 from '@/assets/imgs/templates/template3.webp'
 import template4 from '@/assets/imgs/templates/template4.webp'
+import {get, post, del} from "@/util/request.js";
 
 import {message} from 'ant-design-vue';
 import router from "@/router/index.js";
@@ -44,12 +45,18 @@ const options = reactive({
   deletingProfileIndex: -1
 })
 const initData = () => {
-  options.profiles = JSON.parse(localStorage.getItem("profiles"))
-  if (options.profiles === null) {
-    options.profiles = []
-    options.profiles.push(defaultProfile)
-  }
-
+  get('/api/profile/get', null, 
+    (message, data) => {
+      options.profiles = data || [];
+      if (options.profiles.length === 0) {
+        options.profiles.push(defaultProfile);
+      }
+    },
+    (error) => {
+      messageApi.error('获取资料失败：' + error);
+      options.profiles = [defaultProfile];
+    }
+  );
 }
 onBeforeMount(() => {
   initData()
@@ -62,18 +69,29 @@ const templateClickHandler = (id) => {
   }
 }
 const clearData = () => {
-  localStorage.removeItem("profiles")
-  options.profiles = []
-  options.isDeleteModalOpen = false
-  messageApi.success("所有资料已清空")
+  del('/api/profile/delete', null,
+    () => {
+      options.profiles = [];
+      options.isDeleteModalOpen = false;
+      messageApi.success("所有资料已清空");
+    },
+    (error) => {
+      messageApi.error("清空资料失败：" + error);
+    }
+  );
 }
 const saveDataToLocalStorage = () => {
   try {
-    localStorage.setItem("profiles", JSON.stringify(options.profiles));
+    post('/api/profile/create', options.profiles,
+      () => {
+        messageApi.success("保存成功！");
+      },
+      (error) => {
+        messageApi.error("保存失败：" + error);
+      }
+    );
   } catch (e) {
-    messageApi.error("发生错误：" + e)
-  } finally {
-    messageApi.success("保存成功！")
+    messageApi.error("发生错误：" + e);
   }
 }
 const fileToBase64 = (file) => {
@@ -104,10 +122,16 @@ const handleFileSelect = async (event) => {
 // 删除单个资料
 const deleteSingleProfile = () => {
   if (options.deletingProfileIndex >= 0 && options.deletingProfileIndex < options.profiles.length) {
-    options.profiles.splice(options.deletingProfileIndex, 1);
-    messageApi.success("删除成功");
-    // 自动保存更新后的数据
-    saveDataToLocalStorage();
+    const profileToDelete = options.profiles[options.deletingProfileIndex];
+    del('/api/profile/delete', { id: profileToDelete.id },
+      () => {
+        options.profiles.splice(options.deletingProfileIndex, 1);
+        messageApi.success("删除成功");
+      },
+      (error) => {
+        messageApi.error("删除失败：" + error);
+      }
+    );
   }
   options.isDeleteSingleProfileModalOpen = false;
   options.deletingProfileIndex = -1;

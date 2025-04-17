@@ -55,7 +55,7 @@ function get(url, data = null, success, failure = defaultFailure, error = defaul
 function put(url, data, success, failure = defaultFailure, error = defaultError) {
     axios.put(url, data, {
         headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/json",
             "Authorization": getAuthToken()
         },
         withCredentials: true

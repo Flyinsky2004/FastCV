@@ -1,6 +1,7 @@
 <script setup>
 import {ref, onMounted} from 'vue'
 import Layout from '@/components/Layout.vue'
+import router from '@/router'
 
 const props = defineProps({
   // 要依次显示的文本数组

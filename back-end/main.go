@@ -21,7 +21,9 @@ func main() {
 	// 初始化redis
 	config.InitRedis()
 	// 自动迁移数据库
-	config.MysqlDataBase.AutoMigrate(&entity.User{})
+	config.MysqlDataBase.AutoMigrate(
+		&entity.User{},
+		&entity.Profile{})
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     config.Config.Gin.CorsAllowOrigins, // 允许的前端来源

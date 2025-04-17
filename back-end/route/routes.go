@@ -17,4 +17,13 @@ func RegisterRoutes(r *gin.Engine) {
 	{
 		userGroup.GET("myInfo", service.GetMyInfo)
 	}
+
+	profileGroup := r.Group("/api/profile", preHandler())
+	{
+		profileGroup.POST("create", service.CreateProfile)
+		profileGroup.GET("get", service.GetProfile)
+		profileGroup.GET("/:id/get", service.GetProfileByID)
+		profileGroup.PUT("update", service.UpdateProfile)
+		profileGroup.DELETE("delete", service.DeleteProfile)
+	}
 }

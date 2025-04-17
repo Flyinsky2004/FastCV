@@ -39,7 +39,7 @@ func preHandler() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		c.Set("userId", claims.UserID)
+		c.Set("userID", claims.UserID)
 
 		// 允许请求继续进行
 		c.Next()

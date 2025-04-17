@@ -5,7 +5,7 @@
       <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">登录到 FastCV</h2>
       <p class="mt-2 text-center text-sm text-gray-600">
         还没有账号？
-        <router-link to="/register" class="font-medium text-blue-600 hover:text-blue-500">
+        <router-link to="/auth/register" class="font-medium text-blue-600 hover:text-blue-500">
           立即注册
         </router-link>
       </p>

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -83,4 +84,23 @@ func SaveBase64ToFile(base64Data, outputDir, filename string) (string, error) {
 	os.Remove(tempPath)
 
 	return finalPath, nil
+}
+
+func GetUserIDFromContext(userID interface{}) int {
+	switch v := userID.(type) {
+	case uint:
+		return int(v)
+	case int:
+		return v
+	case float64:
+		return int(v)
+	case string:
+		id, err := strconv.Atoi(v)
+		if err != nil {
+			return 0
+		}
+		return id
+	default:
+		return 0
+	}
 }

@@ -4,6 +4,7 @@ import {message} from 'ant-design-vue';
 import router from "@/router/index.js";
 import {dayjs} from "element-plus";
 import {defaultProfile} from '@/hooks/data';
+import {get, put, postJSON, del} from '@/util/request';
 
 const [messageApi, contextHolder] = message.useMessage();
 
@@ -84,68 +85,103 @@ onBeforeMount(() => {
 
 // 初始化数据
 const initData = () => {
-  // 从本地存储获取资料列表
-  const profiles = JSON.parse(localStorage.getItem("profiles")) || [defaultProfile];
-  
-  if (!isNewProfile.value && profileIndex.value >= 0 && profileIndex.value < profiles.length) {
-    // 编辑现有资料
-    const currentProfile = profiles[profileIndex.value];
-    
-    // 深拷贝以避免直接修改引用
-    editingProfile.profile = JSON.parse(JSON.stringify(currentProfile));
-    
-    // 处理日期格式
-    if (editingProfile.profile.birthDate) {
-      editingProfile.profile.birthDate = dayjs(editingProfile.profile.birthDate);
-    }
-    
-    // 处理工作经历中的日期
-    if (editingProfile.profile.workExperience && editingProfile.profile.workExperience.length > 0) {
-      editingProfile.profile.workExperience.forEach(exp => {
-        if (exp.startDate) exp.startDate = dayjs(exp.startDate);
-        if (exp.endDate) exp.endDate = dayjs(exp.endDate);
-      });
-    }
-    
-    // 处理教育经历中的日期
-    if (editingProfile.profile.education && editingProfile.profile.education.length > 0) {
-      editingProfile.profile.education.forEach(edu => {
-        if (edu.startDate) edu.startDate = dayjs(edu.startDate);
-        if (edu.endDate) edu.endDate = dayjs(edu.endDate);
-      });
-    }
-    
-    // 处理竞赛经历中的日期
-    if (editingProfile.profile.races && editingProfile.profile.races.length > 0) {
-      editingProfile.profile.races.forEach(race => {
-        if (race.date) race.date = dayjs(race.date);
-      });
-    }
+  if (!isNewProfile.value && profileIndex.value >= 0) {
+    // 从后端获取现有资料
+    get(`/api/profile/${profileIndex.value}/get`, null, 
+      (message, data) => {
+        // 深拷贝以避免直接修改引用
+        editingProfile.profile = JSON.parse(JSON.stringify(data.content));
+        // 处理日期格式
+        if (editingProfile.profile.birthDate) {
+          editingProfile.profile.birthDate = dayjs(editingProfile.profile.birthDate);
+        }
+        
+        // 处理工作经历中的日期
+        if (editingProfile.profile.workExperience && editingProfile.profile.workExperience.length > 0) {
+          editingProfile.profile.workExperience.forEach(exp => {
+            if (exp.startDate) exp.startDate = dayjs(exp.startDate);
+            if (exp.endDate) exp.endDate = dayjs(exp.endDate);
+          });
+        }
+        
+        // 处理教育经历中的日期
+        if (editingProfile.profile.education && editingProfile.profile.education.length > 0) {
+          editingProfile.profile.education.forEach(edu => {
+            if (edu.startDate) edu.startDate = dayjs(edu.startDate);
+            if (edu.endDate) edu.endDate = dayjs(edu.endDate);
+          });
+        }
+        
+        // 处理竞赛经历中的日期
+        if (editingProfile.profile.races && editingProfile.profile.races.length > 0) {
+          editingProfile.profile.races.forEach(race => {
+            if (race.date) race.date = dayjs(race.date);
+          });
+        }
+      },
+      (error) => {
+        messageApi.error("获取资料失败：" + error);
+      }
+    );
   }
 };
 
 // 保存编辑的资料
 const saveProfile = () => {
-  // 从本地存储获取资料列表
-  const profiles = JSON.parse(localStorage.getItem("profiles")) || [defaultProfile];
+  const profileData = JSON.parse(JSON.stringify(editingProfile.profile));
   
-  if (isNewProfile.value) {
-    // 添加新资料
-    profiles.push(editingProfile.profile);
-    messageApi.success("已成功添加新资料");
-  } else {
-    // 更新现有资料
-    profiles[profileIndex.value] = editingProfile.profile;
-    messageApi.success("资料修改成功");
+  // 转换日期格式为ISO字符串
+  if (profileData.birthDate) {
+    profileData.birthDate = profileData.birthDate.toISOString();
   }
   
-  // 保存回本地存储
-  try {
-    localStorage.setItem("profiles", JSON.stringify(profiles));
-    // 返回主页
-    router.push('/main');
-  } catch (e) {
-    messageApi.error("保存失败：" + e);
+  if (profileData.workExperience) {
+    profileData.workExperience.forEach(exp => {
+      if (exp.startDate) exp.startDate = exp.startDate.toISOString();
+      if (exp.endDate) exp.endDate = exp.endDate.toISOString();
+    });
+  }
+  
+  if (profileData.education) {
+    profileData.education.forEach(edu => {
+      if (edu.startDate) edu.startDate = edu.startDate.toISOString();
+      if (edu.endDate) edu.endDate = edu.endDate.toISOString();
+    });
+  }
+  
+  if (profileData.races) {
+    profileData.races.forEach(race => {
+      if (race.date) race.date = race.date.toISOString();
+    });
+  }
+  const str = JSON.stringify(profileData)
+  if (isNewProfile.value) {
+    // 创建新资料
+    postJSON('/api/profile/create', {
+      content: str
+    },
+      (message) => {
+        messageApi.success("已成功添加新资料");
+        router.push('/main');
+      },
+      (error) => {
+        messageApi.error("保存失败：" + error);
+      }
+    );
+  } else {
+    // 更新现有资料
+    put('/api/profile/update', {
+      profile_id: profileIndex.value,
+      content: str
+    },
+      (message) => {
+        messageApi.success("资料修改成功");
+        router.push('/main');
+      },
+      (error) => {
+        messageApi.error("保存失败：" + error);
+      }
+    );
   }
 };
 
