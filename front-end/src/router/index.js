@@ -23,6 +23,10 @@ const router = createRouter({
           name: 'register',
           path: '/auth/register',
           component: () => import('@/views/auth/Register.vue')
+        },{
+          name: 'virtual',
+          path:'/virtual',
+          component: () => import('@/views/main/Virtual.vue')
         }
       ]
     },{

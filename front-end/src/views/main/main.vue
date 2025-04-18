@@ -98,22 +98,7 @@ const clearData = () => {
     }
   );
 };
-const saveDataToLocalStorage = () => {
-  try {
-    post(
-      "/api/profile/create",
-      options.profiles,
-      () => {
-        messageApi.success("保存成功！");
-      },
-      (error) => {
-        messageApi.error("保存失败：" + error);
-      }
-    );
-  } catch (e) {
-    messageApi.error("发生错误：" + e);
-  }
-};
+
 const fileToBase64 = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -244,12 +229,6 @@ const navigateToAddNew = () => {
             class="basic-button bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
           >
             新建数据
-          </button>
-          <button
-            class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700"
-            @click="saveDataToLocalStorage"
-          >
-            保存数据
           </button>
           <button
             class="basic-button bg-red-500 hover:bg-red-600 active:bg-red-700"

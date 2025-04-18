@@ -7,16 +7,6 @@ import (
 	"time"
 )
 
-var tts = utility.NewAzureTTS(
-	"key content",
-	"eastasia", // 你的Azure区域
-) // 调用TTS服务
-
-var stt = utility.NewAzureSTT(
-	"key content",
-	"eastasia", // 你的Azure区域
-) // 调用STT服务
-
 func ConvertAudioToText(base64Data string) (string, error) {
 	randomString := func() string {
 		const charset = "abcdefghijklmnopqrstuvwxyz0123456789"

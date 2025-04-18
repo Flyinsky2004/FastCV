@@ -14,6 +14,7 @@ import (
 type AppConfig struct {
 	Gin struct {
 		Port             string   `yaml:"port"`
+		Domain           string   `yaml:"domain"`
 		CorsAllowOrigins []string `yaml:"corsAllowOrigins"`
 	} `yaml:"gin"`
 
@@ -52,6 +53,12 @@ type AppConfig struct {
 		Region          string `yaml:"region"`
 	} `yaml:"azureTTS"`
 
+	AzureSpeech struct {
+		BaseURL         string `yaml:"baseURL"`
+		SubscriptionKey string `yaml:"subscriptionKey"`
+		Region          string `yaml:"region"`
+	} `yaml:"azureSpeech"`
+
 	OpenAI struct {
 		Key               string  `yaml:"key"`
 		BaseURL           string  `yaml:"baseURL"`
@@ -60,6 +67,11 @@ type AppConfig struct {
 		AgentModelName    string  `yaml:"agentModelName"`
 		UseModelName      string  `yaml:"useModelName"`
 	} `yaml:"openAI"`
+
+	AnythingLLM struct {
+		BaseURL string `yaml:"baseURL"`
+		APIKey  string `yaml:"apiKey"`
+	} `yaml:"anythingLLM"`
 }
 
 // Config 全局配置变量
@@ -93,7 +105,6 @@ func ReadConfig() {
 	if err := yaml.Unmarshal(data, &Config); err != nil {
 		log.Fatalf("解析配置文件失败: %v", err)
 	}
-
 	fmt.Println("配置文件加载成功:", configPath)
 }
 

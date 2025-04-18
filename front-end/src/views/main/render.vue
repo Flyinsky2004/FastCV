@@ -24,7 +24,6 @@ const exportResumeAsPDF = async () => {
     const element = document.getElementById('resume');
     const isDark = themeStore.isDark;
     const backgroundColor = isDark ? '#000000' : '#ffffff';
-    console.log(backgroundColor)
     const opt = {
       margin: [10, 0, 0, 10],
       filename: 'download.pdf',

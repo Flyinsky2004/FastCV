@@ -11,17 +11,6 @@ import (
 	"time"
 )
 
-const (
-	baseURL      = "https://%s.tts.speech.microsoft.com/cognitiveservices/v1"
-	ssmlTemplate = `
-<speak version='1.0' xml:lang='%s'>
-    <voice xml:lang='%s' xml:gender='%s' name='%s'>
-        %s
-    </voice>
-</speak>`
-	basePath = "/Users/wangjiying/Documents/recording/legacy/audio"
-)
-
 type AzureTTS struct {
 	SubscriptionKey string
 	Region          string
@@ -57,6 +46,8 @@ func (tts *AzureTTS) TextToSpeech(text, lang, voice, gender string) (string, err
 		return string(b)
 	}
 	timestamp := time.Now().Format("20060102")
+	basePath := "./audio"
+	//basePath := "/Users/wangjiying/Documents/recording/legacy/audio"
 	filename := fmt.Sprintf("%s_%s.mp3", timestamp, randomString())
 	outputPath := fmt.Sprintf(basePath+"/%s", filename)
 

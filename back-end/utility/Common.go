@@ -7,9 +7,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 // GenerateCode 生成随机验证码
@@ -103,4 +105,28 @@ func GetUserIDFromContext(userID interface{}) int {
 	default:
 		return 0
 	}
+}
+
+func ExtractQuotedChinese(input string) string {
+	re := regexp.MustCompile(`"(.*?)"`)
+	matches := re.FindAllStringSubmatch(input, -1)
+	var results string
+
+	for _, match := range matches {
+		if len(match) > 1 && ContainsChinese(match[1]) {
+			results += match[1]
+		}
+	}
+
+	return results
+}
+
+// containsChinese 检查字符串是否包含至少一个中文字符
+func ContainsChinese(s string) bool {
+	for _, r := range s {
+		if unicode.Is(unicode.Han, r) {
+			return true
+		}
+	}
+	return false
 }

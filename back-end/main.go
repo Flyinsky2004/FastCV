@@ -23,7 +23,10 @@ func main() {
 	// 自动迁移数据库
 	config.MysqlDataBase.AutoMigrate(
 		&entity.User{},
-		&entity.Profile{})
+		&entity.Profile{},
+		&entity.Virtual{},
+		&entity.VirtualQuestion{},
+	)
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     config.Config.Gin.CorsAllowOrigins, // 允许的前端来源
@@ -34,6 +37,7 @@ func main() {
 		MaxAge:           6 * time.Hour, // 预检请求的缓存时间
 	}))
 	// app.Static("/api/uploads", "./uploads") 静态文件访问路径以及目录
+	app.Static("/api/audio", "./audio")
 	route.RegisterRoutes(app)
 	app.Run(config.Config.Gin.Port)
 }

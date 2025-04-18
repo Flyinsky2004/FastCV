@@ -26,4 +26,19 @@ func RegisterRoutes(r *gin.Engine) {
 		profileGroup.PUT("update", service.UpdateProfile)
 		profileGroup.DELETE("delete", service.DeleteProfile)
 	}
+
+	virtualGroup := r.Group("/api/virtual", preHandler())
+	{
+		virtualGroup.POST("/question", service.GetVirtualQuestion)
+		virtualGroup.POST("/audio", service.GetVirtualQuestionAudio) // 音频生成方式
+		virtualGroup.POST("/submit", service.SubmitVirtualDefense)
+		virtualGroup.GET("/get", service.GetVirtualDefense)
+		virtualGroup.GET("/list", service.GetVirtualList)
+		virtualGroup.POST("/score", service.GetScore)
+	}
+
+	websocketGroup := r.Group("/api/ws")
+	{
+		websocketGroup.GET("projectSuggest", service.StreamChatCompletion)
+	}
 }
