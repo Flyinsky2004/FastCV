@@ -70,7 +70,7 @@ const optimizeContent = async () => {
 
   loading.value = true
   try {
-    postJSON('/api/rag/GetAdveriseUniversal', 
+    postJSON('/api/profile/adveriseUniversal', 
       {
         source: tempValue.value,
         field_type: selectedFieldType.value,
@@ -139,7 +139,7 @@ const handleCancel = () => {
 <template>
   <div class="flex items-center">
     <div class="flex-1 truncate bg-gray-50 hover:bg-gray-100 transition-colors duration-200 px-4 py-3 rounded-lg cursor-pointer" @click="showModal">
-      {{ modelValue || '暂无内容' }}
+      {{ modelValue.substring(0, 50) || '暂无内容' }}
     </div>
     <a-button type="link" @click="showModal" class="ml-2">
       <template #icon><EditOutlined /></template>

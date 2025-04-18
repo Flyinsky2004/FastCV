@@ -5,6 +5,7 @@ import router from "@/router/index.js";
 import dayjs from "dayjs";
 import {defaultProfile} from '@/hooks/data';
 import {get, put, postJSON, del} from '@/util/request';
+import TextEditModal from '@/components/TextEditModal.vue';
 
 const [messageApi, contextHolder] = message.useMessage();
 
@@ -454,7 +455,11 @@ const resetProjectForm = () => {
             </div>
             <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
               <a>描述</a>
-              <textarea class="basic-blue-input" v-model="editingProfile.currentEditingExperience.description" rows="5"/>
+              <TextEditModal
+                v-model="editingProfile.currentEditingExperience.description"
+                title="编辑工作经历描述"
+                :rows="5"
+              />
             </div>
             <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
               <a>起始时间</a>
@@ -605,7 +610,11 @@ const resetProjectForm = () => {
             </div>
             <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
               <a>简介</a>
-              <textarea class="basic-blue-input" v-model="editingProfile.currentEditingProjects.description" rows="5"/>
+              <TextEditModal
+                v-model="editingProfile.currentEditingProjects.description"
+                title="编辑项目简介"
+                :rows="5"
+              />
             </div>
             <div class="mt-3 flex">
               <button @click="updateProject" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">
@@ -647,7 +656,11 @@ const resetProjectForm = () => {
             </div>
             <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
               <a>技能描述</a>
-              <textarea class="basic-blue-input" v-model="editingProfile.currentEditingSkill.description" rows="5"/>
+              <TextEditModal
+                v-model="editingProfile.currentEditingSkill.description"
+                title="编辑技能描述"
+                :rows="5"
+              />
             </div>
             <div class="mt-3 flex">
               <button @click="updateSkill" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">

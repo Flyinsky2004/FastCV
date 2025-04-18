@@ -25,7 +25,7 @@ func RegisterRoutes(r *gin.Engine) {
 		profileGroup.GET("/:id/get", service.GetProfileByID)
 		profileGroup.PUT("update", service.UpdateProfile)
 		profileGroup.DELETE("delete", service.DeleteProfile)
-		profileGroup.POST("/adveriseUniversal", service.GetAdveriseUniversal)
+		profileGroup.POST("adveriseUniversal", service.GetAdveriseUniversal)
 
 	}
 
