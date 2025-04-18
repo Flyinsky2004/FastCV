@@ -347,7 +347,7 @@ func GetScore(c *gin.Context) {
 
 	for retry := 0; retry < maxRetries; retry++ {
 		score, err := utility.ChatHandler(utility.ChatRequest{
-			Model:    config.Config.OpenAI.ThinkModelName,
+			Model:    config.Config.OpenAI.UseModelName,
 			Messages: []utility.Message{},
 			Prompt:   prompt,
 			Question: questionStr,

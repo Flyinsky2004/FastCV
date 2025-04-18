@@ -17,7 +17,7 @@ const app = createApp(App)
 app.use(createPinia())
 app.use(router).use(ElementPlus).use(Antd).use(MotionPlugin)
 //开发环境
-axios.defaults.baseURL="http://localhost:8080"
+//axios.defaults.baseURL="http://localhost:8080"
 //生产环境3
-//axios.defaults.baseURL= window.location.protocol + '//' + window.location.host
+axios.defaults.baseURL= window.location.protocol + '//' + window.location.host
 app.mount('#app')

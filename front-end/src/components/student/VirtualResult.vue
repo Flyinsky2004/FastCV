@@ -62,11 +62,11 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-gray-50 p-4 rounded-lg">
             <div class="text-sm text-gray-500">姓名</div>
-            <div class="font-medium">{{ result.Virtual.user?.username || '未知用户' }}</div>
+            <div class="font-medium">{{ options?.name || '未知用户' }}</div>
           </div>
           <div class="bg-gray-50 p-4 rounded-lg">
             <div class="text-sm text-gray-500">面试岗位</div>
-            <div class="font-medium">{{ result.Virtual.profile.content?.jobName || '未说明岗位' }}</div>
+            <div class="font-medium">{{ options.jobName || '未说明岗位' }}</div>
           </div>
         </div>
         <div class="mt-4 bg-gray-50 p-4 rounded-lg">
@@ -145,7 +145,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, h, reactive } from 'vue';
+import { ref, onMounted, h, reactive, watch } from 'vue';
 import { get, postJSON } from '@/util/request';
 import { message } from 'ant-design-vue';
 import { useMotion } from '@vueuse/motion';
@@ -164,7 +164,6 @@ const props = defineProps({
 });
 
 defineEmits(['back']);
-
 const loading = ref(true);
 const error = ref('');
 const result = ref({
@@ -223,8 +222,10 @@ const fetchResult = async () => {
   get('/api/virtual/get', { virtual_id: props.virtualId },
     (msg, data) => {
       result.value = data;
-      result.value.Virtual.profile.content = JSON.parse(result.value.Virtual.profile.content)
       loading.value = false;
+      const example = JSON.parse(result.value.Virtual.profile.content)
+      options.jobName = example.jobName
+      options.name = example.name
       if (result.value.Virtual.score === 0 || result.value.Virtual.description === "") {
         generateDescription();
       }
@@ -240,24 +241,32 @@ const fetchResult = async () => {
       message.error('系统错误');
     }
   );
+
 };
 
 onMounted(() => {
   fetchResult();
 });
 
-const options = reactive({
+// 监听 virtualId 的变化
+watch(() => props.virtualId, (newId, oldId) => {
+  if (newId !== oldId) {
+    fetchResult();
+  }
+});
 
+const options = reactive({
+  jobName: '',
+  name: ''
 })
 
 const generateDescription = () => {
-  // 创建 WebSocket 连接
-  const token = localStorage.getItem("authToken")
-  const baseUrl = BACKEND_DOMAIN.replace(/^http/, 'ws').replace(/\/$/, '')
-  const ws = new WebSocket(
+    // 创建 WebSocket 连接
+    const token = localStorage.getItem("authToken")
+    const baseUrl = BACKEND_DOMAIN.replace(/^http/, 'ws').replace(/\/$/, '')
+    const ws = new WebSocket(
     `${baseUrl}/ws/projectSuggest`
   )
-
   ws.onopen = () => {
     ws.send(
       JSON.stringify({
@@ -271,7 +280,6 @@ const generateDescription = () => {
     const response = JSON.parse(event.data)
     if (response.code === 500) {
       message.error(response.message)
-      analysisOptions.isGenerating = false
       ws.close()
       return
     }
