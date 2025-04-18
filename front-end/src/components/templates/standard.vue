@@ -9,7 +9,6 @@ const options = reactive({
   profile: {}
 })
 onBeforeMount(() => {
-
   if (!profileStore.isSelected) options.profile = JSON.parse(localStorage.getItem("lastProfile"))
   else options.profile = profileStore.getCurrentProfile
 })

@@ -2,7 +2,7 @@
 import {onBeforeMount, reactive, ref} from "vue";
 import {message} from 'ant-design-vue';
 import router from "@/router/index.js";
-import {dayjs} from "element-plus";
+import dayjs from "dayjs";
 import {defaultProfile} from '@/hooks/data';
 import {get, put, postJSON, del} from '@/util/request';
 
@@ -90,7 +90,7 @@ const initData = () => {
     get(`/api/profile/${profileIndex.value}/get`, null, 
       (message, data) => {
         // 深拷贝以避免直接修改引用
-        editingProfile.profile = JSON.parse(JSON.stringify(data.content));
+        editingProfile.profile = JSON.parse(data.content);
         // 处理日期格式
         if (editingProfile.profile.birthDate) {
           editingProfile.profile.birthDate = dayjs(editingProfile.profile.birthDate);
@@ -118,6 +118,7 @@ const initData = () => {
             if (race.date) race.date = dayjs(race.date);
           });
         }
+        console.log(editingProfile.profile)
       },
       (error) => {
         messageApi.error("获取资料失败：" + error);
@@ -129,31 +130,6 @@ const initData = () => {
 // 保存编辑的资料
 const saveProfile = () => {
   const profileData = JSON.parse(JSON.stringify(editingProfile.profile));
-  
-  // 转换日期格式为ISO字符串
-  if (profileData.birthDate) {
-    profileData.birthDate = profileData.birthDate.toISOString();
-  }
-  
-  if (profileData.workExperience) {
-    profileData.workExperience.forEach(exp => {
-      if (exp.startDate) exp.startDate = exp.startDate.toISOString();
-      if (exp.endDate) exp.endDate = exp.endDate.toISOString();
-    });
-  }
-  
-  if (profileData.education) {
-    profileData.education.forEach(edu => {
-      if (edu.startDate) edu.startDate = edu.startDate.toISOString();
-      if (edu.endDate) edu.endDate = edu.endDate.toISOString();
-    });
-  }
-  
-  if (profileData.races) {
-    profileData.races.forEach(race => {
-      if (race.date) race.date = race.date.toISOString();
-    });
-  }
   const str = JSON.stringify(profileData)
   if (isNewProfile.value) {
     // 创建新资料
