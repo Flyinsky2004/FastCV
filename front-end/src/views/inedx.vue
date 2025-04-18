@@ -71,7 +71,7 @@ const openLink = (link) => {
     <div class="flex flex-col h-1/2 select-none">
       <div class="mx-auto my-auto">
         <div class="typewriter">
-          你好，<span class="text-blue-500">{{ currentText }}</span><span class="cursor">|</span>
+          <a class="dark:text-white">你好，</a><span class="text-blue-500">{{ currentText }}</span><span class="cursor">|</span>
         </div>
         <div class="w-full flex mt-2 flex-col">
           <h1 class="mx-auto text-gray-500">一个纯前端，由Vue.js构建的简历模版渲染工具。</h1>

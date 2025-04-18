@@ -27,20 +27,20 @@ const router = createRouter({
           name: 'virtual',
           path:'/virtual',
           component: () => import('@/views/main/Virtual.vue')
+        },{
+          name: 'main',
+          path: '/main',
+          component: () => import('@/views/main/main.vue')
+        },{
+          name:'template',
+          path:'/template/:id',
+          component: () => import('@/views/main/render.vue')
+        },{
+          name: 'edit',
+          path: '/edit/:index',
+          component: () => import('@/views/main/edit.vue')
         }
       ]
-    },{
-      name: 'main',
-      path: '/main',
-      component: () => import('@/views/main/main.vue')
-    },{
-      name:'template',
-      path:'/template/:id',
-      component: () => import('@/views/main/render.vue')
-    },{
-      name: 'edit',
-      path: '/edit/:index',
-      component: () => import('@/views/main/edit.vue')
     }
   ],
 })

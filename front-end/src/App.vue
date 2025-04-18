@@ -18,7 +18,7 @@ dayjs.locale('zh-cn');
       :locale="zhCN"
   >
   </a-config-provider>
-  <div class="h-screen overflow-y-hidden bkg bkg-theme-switch">
+  <div class="overflow-y-auto bkg bkg-theme-switch">
 <!--    <ThemeSwitch class="fixed top-0 right-0"/>-->
     <RouterView/>
   </div>

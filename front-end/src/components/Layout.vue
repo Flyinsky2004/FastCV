@@ -1,6 +1,7 @@
 <script setup>
 import { RouterView } from 'vue-router';
 import ThemeSwitch from './commmon/themeSwitch.vue';
+import router from '@/router';
 
 const openLink = (link) => {
   window.open(link, '_blank')
@@ -11,7 +12,7 @@ const openLink = (link) => {
   <div class="h-screen overflow-y-auto bg-background theme-transition">
     <div class="h-screen overflow-y-auto grid-background theme-transition">
       <div class="h-10 bg-[hsl(var(--header-bg))] shadow-sm border-b border-[hsl(var(--border))] place-items-center flex">
-        <div class="font-bold text-xl flex-grow text-center title bg-clip-text bg-gradient-to-r from-purple-500 via-red-500 to-pink-500 text-transparent">FastCV</div>
+        <div class="font-bold text-xl flex-grow text-center title bg-clip-text bg-gradient-to-r from-purple-500 via-red-500 to-pink-500 text-transparent cursor-pointer" @click="router.push('/')">FastCV</div>
         <div class="flex flex-nowrap gap-2 px-4">
           <ThemeSwitch/>
           <a href="https://github.com/Flyinsky2004/FastCV" class="hover:text-[hsl(var(--primary))] transition-colors">
