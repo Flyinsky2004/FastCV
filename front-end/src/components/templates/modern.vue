@@ -113,7 +113,7 @@ onBeforeMount(() => {
             <div class="space-y-6">
               <div v-for="exp in options.profile.workExperience" class="grid grid-cols-[auto,1fr] gap-4">
                 <div class="relative">
-                  <div class="h-full w-0.5 bg-orange-200 absolute left-2"></div>
+                  <div class="h-full w-0.5 bg-orange-200 absolute left-0"></div>
                   <div class="w-4 h-4 rounded-full bg-orange-500"></div>
                   <div class="text-sm text-gray-500 mt-2">
                     {{ dateToString(exp.startDate) }}<br>至<br>{{ dateToString(exp.endDate) }}

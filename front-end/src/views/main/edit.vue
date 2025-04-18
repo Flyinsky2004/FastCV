@@ -1,17 +1,24 @@
 <script setup>
 import {onBeforeMount, reactive, ref} from "vue";
-import {message} from 'ant-design-vue';
+import {message, Tabs} from 'ant-design-vue';
 import router from "@/router/index.js";
 import dayjs from "dayjs";
 import {defaultProfile} from '@/hooks/data';
 import {get, put, postJSON, del} from '@/util/request';
 import TextEditModal from '@/components/TextEditModal.vue';
+import FormField from '@/components/FormField.vue';
+import CardSection from '@/components/CardSection.vue';
+import ItemList from '@/components/ItemList.vue';
 
+const { TabPane } = Tabs;
 const [messageApi, contextHolder] = message.useMessage();
 
 // 获取路由参数
 const profileIndex = ref(parseInt(router.currentRoute.value.params.index));
 const isNewProfile = ref(profileIndex.value === -1);
+
+// 当前激活的标签页
+const activeTab = ref('basic');
 
 // 编辑表单数据
 const editingProfile = reactive({
@@ -360,342 +367,408 @@ const resetProjectForm = () => {
 
 <template>
   <contextHolder/>
-  <div class="h-screen overflow-y-auto bg-white bg-opacity-70 animate__animated animate__fadeIn">  
-    <!-- 主体内容 -->
-    <div class="h-fit min-h-screen bg-blue-200 bg-opacity-10 backdrop-blur-md shadow-xl w-3/4 mx-auto rounded-xl mt-2 p-4 hover:shadow-lg transition-all transition-duration-300">
-      <div class="flex mb-4">
-        <h1 class="font-bold text-2xl flex-grow">{{ isNewProfile ? '创建新资料' : '编辑资料' }}</h1>
-        <div class="grid grid-cols-[1fr,1fr] gap-2">
-          <button @click="saveProfile" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700">保存</button>
-          <button @click="cancelEdit" class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">取消</button>
+  <div class="min-h-screen bg-gray-50 py-6 animate__animated animate__fadeIn">
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="flex items-center justify-between mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">{{ isNewProfile ? '创建新资料' : '编辑资料' }}</h1>
+        <div class="flex space-x-4">
+          <button @click="saveProfile" class="btn-primary">保存</button>
+          <button @click="cancelEdit" class="btn-secondary">取消</button>
         </div>
       </div>
-      
-      <!-- 表单内容 -->
-      <a-collapse v-model:activeKey="editingProfile.addFormActiveKey">
-        <a-collapse-panel key="1" header="基本资料">
-          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-            <a>头像</a>
-            <div class="flex items-center">
-              <input class="basic-blue-input" type="file" @change="handleFileSelect" accept="image/*">
-              <img v-if="editingProfile.profile.avatar" :src="editingProfile.profile.avatar" class="w-16 h-16 ml-4 rounded-full object-cover border-2 border-gray-300">
+
+      <div class="bg-white rounded-lg shadow-sm">
+        <a-tabs v-model:activeKey="activeTab" 
+                class="custom-tabs"
+                :animated="{ inkBar: true, tabPane: false }">
+          <a-tab-pane key="basic" tab="基本资料">
+            <div class="p-6">
+              <FormField label="头像">
+                <div class="flex items-center">
+                  <input type="file" @change="handleFileSelect" accept="image/*" class="file-input">
+                  <img v-if="editingProfile.profile.avatar" :src="editingProfile.profile.avatar" class="w-16 h-16 ml-4 rounded-full object-cover border-2 border-gray-200">
+                </div>
+              </FormField>
+              
+              <FormField label="姓名">
+                <input v-model="editingProfile.profile.name" class="form-input"/>
+              </FormField>
+              
+              <FormField label="应聘岗位">
+                <input v-model="editingProfile.profile.jobName" class="form-input"/>
+              </FormField>
+              
+              <FormField label="电话">
+                <input v-model="editingProfile.profile.phoneNumber" class="form-input"/>
+              </FormField>
+              
+              <FormField label="电子邮箱">
+                <input v-model="editingProfile.profile.emailAddress" class="form-input"/>
+              </FormField>
+              
+              <FormField label="城市">
+                <input v-model="editingProfile.profile.position" class="form-input"/>
+              </FormField>
+              
+              <FormField label="生日">
+                <a-date-picker class="form-input" v-model:value="editingProfile.profile.birthDate"/>
+              </FormField>
+              
+              <FormField label="个人网站">
+                <input v-model="editingProfile.profile.webSite" class="form-input"/>
+              </FormField>
+              
+              <FormField label="Github主页">
+                <input v-model="editingProfile.profile.github" class="form-input"/>
+              </FormField>
+              
+              <FormField label="领英主页">
+                <input v-model="editingProfile.profile.linkIn" class="form-input"/>
+              </FormField>
             </div>
-          </div>
-          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-            <a>姓名</a>
-            <input class="basic-blue-input" v-model="editingProfile.profile.name"/>
-          </div>
-          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-            <a>应聘岗位</a>
-            <input class="basic-blue-input" v-model="editingProfile.profile.jobName"/>
-          </div>
-          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-            <a>电话</a>
-            <input class="basic-blue-input" v-model="editingProfile.profile.phoneNumber"/>
-          </div>
-          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-            <a>电子邮箱</a>
-            <input class="basic-blue-input" v-model="editingProfile.profile.emailAddress"/>
-          </div>
-          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-            <a>城市</a>
-            <input class="basic-blue-input" v-model="editingProfile.profile.position"/>
-          </div>
-          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-            <a>生日</a>
-            <a-date-picker class="basic-blue-input" v-model:value="editingProfile.profile.birthDate"/>
-          </div>
-          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-            <a>个人网站</a>
-            <input class="basic-blue-input" v-model="editingProfile.profile.webSite"/>
-          </div>
-          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-            <a>Github主页</a>
-            <input class="basic-blue-input" v-model="editingProfile.profile.github"/>
-          </div>
-          <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-            <a>领英主页</a>
-            <input class="basic-blue-input" v-model="editingProfile.profile.linkIn"/>
-          </div>
-        </a-collapse-panel>
-        
-        <a-collapse-panel key="2" header="工作经历">
-          <!-- 已添加的工作经历列表 -->
-          <div v-if="editingProfile.profile.workExperience && editingProfile.profile.workExperience.length > 0" class="mb-4 border-b pb-4">
-            <h3 class="font-bold mb-2">已添加的工作经历</h3>
-            <div v-for="(exp, index) in editingProfile.profile.workExperience" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
-              <h4 class="font-bold">{{ exp.jobName }} @ {{ exp.workFor }}</h4>
-              <p>{{ exp.position }} · {{ exp.startDate?.format('YYYY-MM-DD') || '未设置' }} 至 {{ exp.endDate?.format('YYYY-MM-DD') || '未设置' }}</p>
-              <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ exp.description }}</p>
-              <div class="absolute top-2 right-2 flex">
-                <button @click="editWorkExperience(index)" class="text-blue-500 hover:text-blue-700 mr-2">
-                  <span class="text-sm">✎</span>
-                </button>
-                <button @click="editingProfile.profile.workExperience.splice(index, 1)" class="text-red-500 hover:text-red-700">
-                  <span class="text-xl">×</span>
-                </button>
+          </a-tab-pane>
+
+          <a-tab-pane key="work" tab="工作经历">
+            <div class="p-6 grid grid-cols-12 gap-6">
+              <!-- 左侧列表 -->
+              <div class="col-span-4 border-r pr-4">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-bold">工作经历列表</h3>
+                  <button 
+                    @click="resetWorkExperienceForm" 
+                    class="text-blue-600 hover:text-blue-700"
+                  >
+                    + 新增
+                  </button>
+                </div>
+                <div class="space-y-3">
+                  <div 
+                    v-for="(item, index) in editingProfile.profile.workExperience" 
+                    :key="index"
+                    @click="editWorkExperience(index)"
+                    class="p-3 rounded-lg cursor-pointer transition-all duration-200"
+                    :class="[
+                      editingProfile.currentEditingIndex.workExperience === index 
+                        ? 'bg-blue-50 border-blue-200' 
+                        : 'hover:bg-gray-50 border-gray-100'
+                    ]"
+                  >
+                    <h4 class="font-medium">{{ item.jobName }}</h4>
+                    <p class="text-sm text-gray-600">{{ item.workFor }}</p>
+                    <p class="text-xs text-gray-500">
+                      {{ item.startDate?.format('YYYY-MM') || '未设置' }} 至 
+                      {{ item.endDate?.format('YYYY-MM') || '未设置' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右侧编辑区 -->
+              <div class="col-span-8">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <h4 class="font-bold mb-4">{{ editingProfile.currentEditingIndex.workExperience >= 0 ? '编辑' : '添加' }}工作经历</h4>
+                  <FormField label="工作单位">
+                    <input v-model="editingProfile.currentEditingExperience.workFor" class="form-input"/>
+                  </FormField>
+                  <FormField label="岗位">
+                    <input v-model="editingProfile.currentEditingExperience.jobName" class="form-input"/>
+                  </FormField>
+                  <FormField label="城市">
+                    <input v-model="editingProfile.currentEditingExperience.position" class="form-input"/>
+                  </FormField>
+                  <FormField label="描述">
+                    <TextEditModal
+                      v-model="editingProfile.currentEditingExperience.description"
+                      title="编辑工作经历描述"
+                      :rows="5"
+                    />
+                  </FormField>
+                  <FormField label="起始时间">
+                    <a-date-picker class="form-input" v-model:value="editingProfile.currentEditingExperience.startDate"/>
+                  </FormField>
+                  <FormField label="离职时间">
+                    <a-date-picker class="form-input" v-model:value="editingProfile.currentEditingExperience.endDate"/>
+                  </FormField>
+                  <div class="flex justify-end space-x-3 mt-4">
+                    <button @click="resetWorkExperienceForm" class="btn-secondary">取消</button>
+                    <button @click="updateWorkExperience" class="btn-primary">保存</button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <!-- 添加新工作经历表单 -->
-          <div>
-            <h3 class="font-bold mb-2">{{ editingProfile.isEditing.workExperience ? '编辑' : '添加' }}工作经历</h3>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>工作单位</a>
-              <input class="basic-blue-input" v-model="editingProfile.currentEditingExperience.workFor"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>岗位</a>
-              <input class="basic-blue-input" v-model="editingProfile.currentEditingExperience.jobName"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>城市</a>
-              <input class="basic-blue-input" v-model="editingProfile.currentEditingExperience.position"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>描述</a>
-              <TextEditModal
-                v-model="editingProfile.currentEditingExperience.description"
-                title="编辑工作经历描述"
-                :rows="5"
-              />
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>起始时间</a>
-              <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingExperience.startDate"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>离职时间</a>
-              <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingExperience.endDate"/>
-            </div>
-            <div class="mt-3 flex">
-              <button @click="updateWorkExperience" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">
-                {{ editingProfile.isEditing.workExperience ? '更新' : '保存并继续' }}
-              </button>
-              <button v-if="editingProfile.isEditing.workExperience" 
-                      @click="resetWorkExperienceForm" 
-                      class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">
-                取消编辑
-              </button>
-            </div>
-          </div>
-        </a-collapse-panel>
-        
-        <a-collapse-panel key="3" header="竞赛经历">
-          <!-- 已添加的竞赛经历列表 -->
-          <div v-if="editingProfile.profile.races && editingProfile.profile.races.length > 0" class="mb-4 border-b pb-4">
-            <h3 class="font-bold mb-2">已添加的竞赛经历</h3>
-            <div v-for="(race, index) in editingProfile.profile.races" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
-              <h4 class="font-bold">{{ race.name }}</h4>
-              <p>{{ race.level }} · {{ race.date?.format('YYYY-MM-DD') || '未设置' }}</p>
-              <div class="absolute top-2 right-2 flex">
-                <button @click="editRace(index)" class="text-blue-500 hover:text-blue-700 mr-2">
-                  <span class="text-sm">✎</span>
-                </button>
-                <button @click="editingProfile.profile.races.splice(index, 1)" class="text-red-500 hover:text-red-700">
-                  <span class="text-xl">×</span>
-                </button>
+          </a-tab-pane>
+
+          <a-tab-pane key="education" tab="教育经历">
+            <div class="p-6 grid grid-cols-12 gap-6">
+              <!-- 左侧列表 -->
+              <div class="col-span-4 border-r pr-4">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-bold">教育经历列表</h3>
+                  <button 
+                    @click="resetEducationForm" 
+                    class="text-blue-600 hover:text-blue-700"
+                  >
+                    + 新增
+                  </button>
+                </div>
+                <div class="space-y-3">
+                  <div 
+                    v-for="(item, index) in editingProfile.profile.education" 
+                    :key="index"
+                    @click="editEducation(index)"
+                    class="p-3 rounded-lg cursor-pointer transition-all duration-200"
+                    :class="[
+                      editingProfile.currentEditingIndex.education === index 
+                        ? 'bg-blue-50 border-blue-200' 
+                        : 'hover:bg-gray-50 border-gray-100'
+                    ]"
+                  >
+                    <h4 class="font-medium">{{ item.name }}</h4>
+                    <p class="text-sm text-gray-600">{{ item.level }} - {{ item.profess }}</p>
+                    <p class="text-xs text-gray-500">
+                      {{ item.startDate?.format('YYYY') || '未设置' }} - 
+                      {{ item.endDate?.format('YYYY') || '未设置' }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右侧编辑区 -->
+              <div class="col-span-8">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <h4 class="font-bold mb-4">{{ editingProfile.currentEditingIndex.education >= 0 ? '编辑' : '添加' }}教育经历</h4>
+                  <FormField label="学校名称">
+                    <input v-model="editingProfile.currentEditingEducation.name" class="form-input"/>
+                  </FormField>
+                  <FormField label="学历">
+                    <input v-model="editingProfile.currentEditingEducation.level" class="form-input"/>
+                  </FormField>
+                  <FormField label="专业方向">
+                    <input v-model="editingProfile.currentEditingEducation.profess" class="form-input"/>
+                  </FormField>
+                  <FormField label="入学时间">
+                    <a-date-picker class="form-input" v-model:value="editingProfile.currentEditingEducation.startDate"/>
+                  </FormField>
+                  <FormField label="毕业时间">
+                    <a-date-picker class="form-input" v-model:value="editingProfile.currentEditingEducation.endDate"/>
+                  </FormField>
+                  <div class="flex justify-end space-x-3 mt-4">
+                    <button @click="resetEducationForm" class="btn-secondary">取消</button>
+                    <button @click="updateEducation" class="btn-primary">保存</button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <!-- 添加新竞赛经历表单 -->
-          <div>
-            <h3 class="font-bold mb-2">{{ editingProfile.isEditing.race ? '编辑' : '添加' }}竞赛经历</h3>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>竞赛名称</a>
-              <input class="basic-blue-input" v-model="editingProfile.currentEditingRace.name"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>奖项</a>
-              <input class="basic-blue-input" v-model="editingProfile.currentEditingRace.level"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>获得时间</a>
-              <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingRace.date"/>
-            </div>
-            <div class="mt-3 flex">
-              <button @click="updateRace" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">
-                {{ editingProfile.isEditing.race ? '更新' : '保存并继续' }}
-              </button>
-              <button v-if="editingProfile.isEditing.race" 
-                      @click="resetRaceForm" 
-                      class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">
-                取消编辑
-              </button>
-            </div>
-          </div>
-        </a-collapse-panel>
-        
-        <a-collapse-panel key="4" header="教育经历">
-          <!-- 已添加的教育经历列表 -->
-          <div v-if="editingProfile.profile.education && editingProfile.profile.education.length > 0" class="mb-4 border-b pb-4">
-            <h3 class="font-bold mb-2">已添加的教育经历</h3>
-            <div v-for="(edu, index) in editingProfile.profile.education" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
-              <h4 class="font-bold">{{ edu.name }}</h4>
-              <p>{{ edu.level }} - {{ edu.profess }}</p>
-              <p>{{ edu.startDate?.format('YYYY-MM-DD') || '未设置' }} 至 {{ edu.endDate?.format('YYYY-MM-DD') || '未设置' }}</p>
-              <div class="absolute top-2 right-2 flex">
-                <button @click="editEducation(index)" class="text-blue-500 hover:text-blue-700 mr-2">
-                  <span class="text-sm">✎</span>
-                </button>
-                <button @click="editingProfile.profile.education.splice(index, 1)" class="text-red-500 hover:text-red-700">
-                  <span class="text-xl">×</span>
-                </button>
+          </a-tab-pane>
+
+          <a-tab-pane key="race" tab="竞赛经历">
+            <div class="p-6 grid grid-cols-12 gap-6">
+              <!-- 左侧列表 -->
+              <div class="col-span-4 border-r pr-4">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-bold">竞赛经历列表</h3>
+                  <button 
+                    @click="resetRaceForm" 
+                    class="text-blue-600 hover:text-blue-700"
+                  >
+                    + 新增
+                  </button>
+                </div>
+                <div class="space-y-3">
+                  <div 
+                    v-for="(item, index) in editingProfile.profile.races" 
+                    :key="index"
+                    @click="editRace(index)"
+                    class="p-3 rounded-lg cursor-pointer transition-all duration-200"
+                    :class="[
+                      editingProfile.currentEditingIndex.race === index 
+                        ? 'bg-blue-50 border-blue-200' 
+                        : 'hover:bg-gray-50 border-gray-100'
+                    ]"
+                  >
+                    <h4 class="font-medium">{{ item.name }}</h4>
+                    <p class="text-sm text-gray-600">{{ item.level }}</p>
+                    <p class="text-xs text-gray-500">{{ item.date?.format('YYYY-MM-DD') || '未设置' }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右侧编辑区 -->
+              <div class="col-span-8">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <h4 class="font-bold mb-4">{{ editingProfile.currentEditingIndex.race >= 0 ? '编辑' : '添加' }}竞赛经历</h4>
+                  <FormField label="竞赛名称">
+                    <input v-model="editingProfile.currentEditingRace.name" class="form-input"/>
+                  </FormField>
+                  <FormField label="奖项">
+                    <input v-model="editingProfile.currentEditingRace.level" class="form-input"/>
+                  </FormField>
+                  <FormField label="获得时间">
+                    <a-date-picker class="form-input" v-model:value="editingProfile.currentEditingRace.date"/>
+                  </FormField>
+                  <div class="flex justify-end space-x-3 mt-4">
+                    <button @click="resetRaceForm" class="btn-secondary">取消</button>
+                    <button @click="updateRace" class="btn-primary">保存</button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <!-- 添加新教育经历表单 -->
-          <div>
-            <h3 class="font-bold mb-2">{{ editingProfile.isEditing.education ? '编辑' : '添加' }}教育经历</h3>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>学校名称</a>
-              <input class="basic-blue-input" v-model="editingProfile.currentEditingEducation.name"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>学历</a>
-              <input class="basic-blue-input" v-model="editingProfile.currentEditingEducation.level"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>专业方向</a>
-              <input class="basic-blue-input" v-model="editingProfile.currentEditingEducation.profess"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>入学时间</a>
-              <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingEducation.startDate"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>毕业时间</a>
-              <a-date-picker class="basic-blue-input" v-model:value="editingProfile.currentEditingEducation.endDate"/>
-            </div>
-            <div class="mt-3 flex">
-              <button @click="updateEducation" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">
-                {{ editingProfile.isEditing.education ? '更新' : '保存并继续' }}
-              </button>
-              <button v-if="editingProfile.isEditing.education" 
-                      @click="resetEducationForm" 
-                      class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">
-                取消编辑
-              </button>
-            </div>
-          </div>
-        </a-collapse-panel>
-        
-        <a-collapse-panel key="5" header="个人项目">
-          <!-- 已添加的项目列表 -->
-          <div v-if="editingProfile.profile.projects && editingProfile.profile.projects.length > 0" class="mb-4 border-b pb-4">
-            <h3 class="font-bold mb-2">已添加的项目</h3>
-            <div v-for="(project, index) in editingProfile.profile.projects" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
-              <h4 class="font-bold">{{ project.title }}</h4>
-              <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ project.description }}</p>
-              <div class="absolute top-2 right-2 flex">
-                <button @click="editProject(index)" class="text-blue-500 hover:text-blue-700 mr-2">
-                  <span class="text-sm">✎</span>
-                </button>
-                <button @click="editingProfile.profile.projects.splice(index, 1)" class="text-red-500 hover:text-red-700">
-                  <span class="text-xl">×</span>
-                </button>
+          </a-tab-pane>
+
+          <a-tab-pane key="project" tab="个人项目">
+            <div class="p-6 grid grid-cols-12 gap-6">
+              <!-- 左侧列表 -->
+              <div class="col-span-4 border-r pr-4">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-bold">项目列表</h3>
+                  <button 
+                    @click="resetProjectForm" 
+                    class="text-blue-600 hover:text-blue-700"
+                  >
+                    + 新增
+                  </button>
+                </div>
+                <div class="space-y-3">
+                  <div 
+                    v-for="(item, index) in editingProfile.profile.projects" 
+                    :key="index"
+                    @click="editProject(index)"
+                    class="p-3 rounded-lg cursor-pointer transition-all duration-200"
+                    :class="[
+                      editingProfile.currentEditingIndex.project === index 
+                        ? 'bg-blue-50 border-blue-200' 
+                        : 'hover:bg-gray-50 border-gray-100'
+                    ]"
+                  >
+                    <h4 class="font-medium">{{ item.title }}</h4>
+                    <p class="text-sm text-gray-600 line-clamp-2">{{ item.description }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右侧编辑区 -->
+              <div class="col-span-8">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <h4 class="font-bold mb-4">{{ editingProfile.currentEditingIndex.project >= 0 ? '编辑' : '添加' }}项目</h4>
+                  <FormField label="项目名称">
+                    <input v-model="editingProfile.currentEditingProjects.title" class="form-input"/>
+                  </FormField>
+                  <FormField label="简介">
+                    <TextEditModal
+                      v-model="editingProfile.currentEditingProjects.description"
+                      title="编辑项目简介"
+                      :rows="5"
+                    />
+                  </FormField>
+                  <div class="flex justify-end space-x-3 mt-4">
+                    <button @click="resetProjectForm" class="btn-secondary">取消</button>
+                    <button @click="updateProject" class="btn-primary">保存</button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <!-- 添加新项目表单 -->
-          <div>
-            <h3 class="font-bold mb-2">{{ editingProfile.isEditing.project ? '编辑' : '添加' }}项目</h3>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>项目名称</a>
-              <input class="basic-blue-input" v-model="editingProfile.currentEditingProjects.title"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>简介</a>
-              <TextEditModal
-                v-model="editingProfile.currentEditingProjects.description"
-                title="编辑项目简介"
-                :rows="5"
-              />
-            </div>
-            <div class="mt-3 flex">
-              <button @click="updateProject" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">
-                {{ editingProfile.isEditing.project ? '更新' : '保存并继续' }}
-              </button>
-              <button v-if="editingProfile.isEditing.project" 
-                      @click="resetProjectForm" 
-                      class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">
-                取消编辑
-              </button>
-            </div>
-          </div>
-        </a-collapse-panel>
-        
-        <a-collapse-panel key="6" header="技能">
-          <!-- 已添加的技能列表 -->
-          <div v-if="editingProfile.profile.skills && editingProfile.profile.skills.length > 0" class="mb-4 border-b pb-4">
-            <h3 class="font-bold mb-2">已添加的技能</h3>
-            <div v-for="(skill, index) in editingProfile.profile.skills" :key="index" class="p-3 mb-2 bg-gray-100 rounded-md relative">
-              <h4 class="font-bold">{{ skill.title }}</h4>
-              <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ skill.description }}</p>
-              <div class="absolute top-2 right-2 flex">
-                <button @click="editSkill(index)" class="text-blue-500 hover:text-blue-700 mr-2">
-                  <span class="text-sm">✎</span>
-                </button>
-                <button @click="editingProfile.profile.skills.splice(index, 1)" class="text-red-500 hover:text-red-700">
-                  <span class="text-xl">×</span>
-                </button>
+          </a-tab-pane>
+
+          <a-tab-pane key="skill" tab="技能">
+            <div class="p-6 grid grid-cols-12 gap-6">
+              <!-- 左侧列表 -->
+              <div class="col-span-4 border-r pr-4">
+                <div class="flex justify-between items-center mb-4">
+                  <h3 class="text-lg font-bold">技能列表</h3>
+                  <button 
+                    @click="resetSkillForm" 
+                    class="text-blue-600 hover:text-blue-700"
+                  >
+                    + 新增
+                  </button>
+                </div>
+                <div class="space-y-3">
+                  <div 
+                    v-for="(item, index) in editingProfile.profile.skills" 
+                    :key="index"
+                    @click="editSkill(index)"
+                    class="p-3 rounded-lg cursor-pointer transition-all duration-200"
+                    :class="[
+                      editingProfile.currentEditingIndex.skill === index 
+                        ? 'bg-blue-50 border-blue-200' 
+                        : 'hover:bg-gray-50 border-gray-100'
+                    ]"
+                  >
+                    <h4 class="font-medium">{{ item.title }}</h4>
+                    <p class="text-sm text-gray-600 line-clamp-2">{{ item.description }}</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 右侧编辑区 -->
+              <div class="col-span-8">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                  <h4 class="font-bold mb-4">{{ editingProfile.currentEditingIndex.skill >= 0 ? '编辑' : '添加' }}技能</h4>
+                  <FormField label="技能名称">
+                    <input v-model="editingProfile.currentEditingSkill.title" class="form-input"/>
+                  </FormField>
+                  <FormField label="技能描述">
+                    <TextEditModal
+                      v-model="editingProfile.currentEditingSkill.description"
+                      title="编辑技能描述"
+                      :rows="5"
+                    />
+                  </FormField>
+                  <div class="flex justify-end space-x-3 mt-4">
+                    <button @click="resetSkillForm" class="btn-secondary">取消</button>
+                    <button @click="updateSkill" class="btn-primary">保存</button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <!-- 添加新技能表单 -->
-          <div>
-            <h3 class="font-bold mb-2">{{ editingProfile.isEditing.skill ? '编辑' : '添加' }}技能</h3>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>技能名称</a>
-              <input class="basic-blue-input" v-model="editingProfile.currentEditingSkill.title"/>
-            </div>
-            <div class="grid grid-cols-[1fr,3fr] place-items-center mt-1">
-              <a>技能描述</a>
-              <TextEditModal
-                v-model="editingProfile.currentEditingSkill.description"
-                title="编辑技能描述"
-                :rows="5"
-              />
-            </div>
-            <div class="mt-3 flex">
-              <button @click="updateSkill" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-2">
-                {{ editingProfile.isEditing.skill ? '更新' : '保存并继续' }}
-              </button>
-              <button v-if="editingProfile.isEditing.skill" 
-                      @click="resetSkillForm" 
-                      class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700">
-                取消编辑
-              </button>
-            </div>
-          </div>
-        </a-collapse-panel>
-      </a-collapse>
-      
+          </a-tab-pane>
+        </a-tabs>
+      </div>
+
       <!-- 底部保存按钮 -->
-      <div class="flex justify-center mt-6">
-        <button @click="saveProfile" class="basic-button bg-green-500 hover:bg-green-600 active:bg-green-700 mr-4 px-8">保存资料</button>
-        <button @click="cancelEdit" class="basic-button bg-gray-500 hover:bg-gray-600 active:bg-gray-700 px-8">取消</button>
+      <div class="flex justify-center mt-8 space-x-4">
+        <button @click="saveProfile" class="btn-primary px-8">保存资料</button>
+        <button @click="cancelEdit" class="btn-secondary px-8">取消</button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.basic-blue-input {
-  @apply border p-2 rounded-md focus:outline-none focus:border-blue-600 w-full;
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors duration-200;
 }
-.basic-button {
-  @apply rounded-md py-2 px-4 text-white font-medium transition-colors duration-200;
+
+.btn-secondary {
+  @apply bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-2 rounded-lg font-medium transition-colors duration-200;
 }
-.line-clamp-2 {
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+
+.form-input {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200;
+}
+
+.file-input {
+  @apply block w-full text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium
+  file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100;
+}
+
+:deep(.custom-tabs) {
+  @apply bg-white;
+}
+
+:deep(.custom-tabs .ant-tabs-nav) {
+  @apply mb-0 px-6 pt-4;
+}
+
+:deep(.custom-tabs .ant-tabs-tab) {
+  @apply text-gray-600 text-base transition-colors duration-200;
+}
+
+:deep(.custom-tabs .ant-tabs-tab-active) {
+  @apply text-blue-600;
+}
+
+:deep(.custom-tabs .ant-tabs-ink-bar) {
+  @apply bg-blue-600;
 }
 </style> 

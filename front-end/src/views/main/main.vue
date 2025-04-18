@@ -1,11 +1,12 @@
 <script setup>
-import { onBeforeMount, reactive } from "vue";
+import { onBeforeMount, reactive, ref } from "vue";
 import { useProfileStore } from "@/stores/profileStore.js";
 import template1 from "@/assets/imgs/templates/template1.webp";
 import template2 from "@/assets/imgs/templates/template2.webp";
 import template3 from "@/assets/imgs/templates/template3.webp";
 import template4 from "@/assets/imgs/templates/template4.webp";
 import { get, post, del } from "@/util/request.js";
+import { useMotion } from '@vueuse/motion'
 
 import { message } from "ant-design-vue";
 import router from "@/router/index.js";
@@ -156,6 +157,40 @@ const navigateToEdit = (index) => {
 const navigateToAddNew = () => {
   router.push("/edit/-1");
 };
+
+// 添加动画引用
+const profilesSection = ref(null)
+const templatesSection = ref(null)
+
+// 设置动画
+const profilesMotion = useMotion(profilesSection, {
+  initial: {
+    opacity: 0,
+    y: 50,
+  },
+  enter: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 800,
+    },
+  },
+})
+
+const templatesMotion = useMotion(templatesSection, {
+  initial: {
+    opacity: 0,
+    y: 50,
+  },
+  enter: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 800,
+      delay: 200,
+    },
+  },
+})
 </script>
 <template>
   <contextHolder />
@@ -188,103 +223,132 @@ const navigateToAddNew = () => {
     </p>
     <p class="text-gray-500">此操作不可撤销。</p>
   </a-modal>
-  <div
-    class="h-screen overflow-y-auto bg-white bg-opacity-70 animate__animated animate__fadeIn"
-  >
-    
-    <div
-      class="h-fit min-h-screen bg-blue-200 bg-opacity-10 backdrop-blur-md shadow-xl w-3/4 mx-auto rounded-xl mt-2 p-4 hover:shadow-lg transition-all transition-duration-300"
-    >
-      <div></div>
-      <div class="flex">
-        <h1 class="font-bold text-2xl flex-grow">个人资料</h1>
-        <div class="grid grid-cols-[1fr,1fr,1fr] gap-2">
-          <button
-            @click="navigateToAddNew()"
-            class="basic-button bg-blue-500 hover:bg-blue-600 active:bg-blue-700"
-          >
-            新建数据
-          </button>
-          <button
-            class="basic-button bg-red-500 hover:bg-red-600 active:bg-red-700"
-            @click="options.isDeleteModalOpen = true"
-          >
-            清空数据
-          </button>
-        </div>
-      </div>
-      <div v-if="options.profiles.length > 0" class="grid grid-cols-4 gap-2">
-        <div
-          class="bg-white p-4 shadow grid grid-cols-1 place-items-center cursor-pointer hover:shadow-lg transition-all transition-duration-300 active:bg-gray-100 select-none"
-          v-for="(profile, index) in options.profiles"
-          @click="
-            profileStore.setProfile(profile.content);
-            messageApi.success(
-              '成功选择资料:' + profile.content.jobName + profile.content.name
-            );
-          "
-        >
-          <img
-            class="w-20 h-20 my-auto mt-4"
-            :src="profile.content.avatar"
-            alt=""
-          />
-          <div class="font-bold mt-1">{{ profile.content.name }}</div>
-          <div class="mt-1">{{ profile.content.jobName }}</div>
-          <div class="mt-1 mb-4">{{ profile.content.position }}</div>
-          <div class="flex space-x-2">
-            <a-button
-              type="primary"
-              size="small"
-              @click.stop="navigateToEdit(index)"
-              >编辑</a-button
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <!-- 个人资料部分 -->
+      <div ref="profilesSection" class="bg-white rounded-2xl shadow-xl p-6 mb-8 animate__animated animate__fadeInUp">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 animate__animated animate__fadeInLeft">个人资料</h1>
+          <div class="flex space-x-4 animate__animated animate__fadeInRight">
+            <button
+              @click="navigateToAddNew()"
+              class="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate__animated animate__pulse animate__infinite animate__slow"
             >
-            <a-button
-              type="danger"
-              size="small"
-              @click.stop="
-                options.deletingProfileIndex = index;
-                options.isDeleteSingleProfileModalOpen = true;
-              "
-              >删除</a-button
+              新建数据
+            </button>
+            <button
+              class="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              @click="options.isDeleteModalOpen = true"
             >
+              清空数据
+            </button>
           </div>
         </div>
+
+        <div v-if="options.profiles.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div
+            v-for="(profile, index) in options.profiles"
+            :key="index"
+            class="bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group animate__animated animate__fadeIn"
+            :style="{ 'animation-delay': index * 0.1 + 's' }"
+          >
+            <div 
+              class="p-6 cursor-pointer"
+              @click="
+                profileStore.setProfile(profile.content);
+                messageApi.success('成功选择资料:' + profile.content.jobName + profile.content.name);
+              "
+            >
+              <div class="flex flex-col items-center">
+                <img
+                  class="w-24 h-24 rounded-full object-cover mb-4 group-hover:scale-105 transition-transform duration-300"
+                  :src="profile.content.avatar"
+                  alt=""
+                />
+                <h3 class="text-xl font-semibold text-gray-800">{{ profile.content.name }}</h3>
+                <p class="text-gray-600 mt-1">{{ profile.content.jobName }}</p>
+                <p class="text-gray-500 mt-1">{{ profile.content.position }}</p>
+              </div>
+            </div>
+            <div class="flex justify-center space-x-3 p-4 bg-gray-50">
+              <button
+                class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors duration-300"
+                @click.stop="navigateToEdit(index)"
+              >
+                编辑
+              </button>
+              <button
+                class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-300"
+                @click.stop="
+                  options.deletingProfileIndex = index;
+                  options.isDeleteSingleProfileModalOpen = true;
+                "
+              >
+                删除
+              </button>
+            </div>
+          </div>
+        </div>
+        <div v-else class="flex items-center justify-center h-32 bg-gray-50 rounded-lg animate__animated animate__fadeIn">
+          <p class="text-gray-500">
+            阿哦，你好像还没有任何录入的个人资料...
+            <button
+              class="text-blue-500 hover:text-blue-600 font-semibold hover:underline focus:outline-none animate__animated animate__pulse animate__infinite animate__slow"
+              @click="navigateToAddNew()"
+            >
+              录入一个
+            </button>
+          </p>
+        </div>
       </div>
-      <div class="text-center text-gray-500 h-32 flex" v-else>
-        <span class="mx-auto my-auto"
-          >阿哦，你好像还没有任何录入的个人资料...<a
-            class="text-blue-500 hover:underline cursor-pointer font-bold"
-            @click="navigateToAddNew()"
-            >录入一个</a
-          ></span
-        >
-      </div>
-      <div class="flex mt-4">
-        <h1 class="font-bold text-2xl flex-grow">简历模版</h1>
-        <h1 v-if="!profileStore.isSelected" class="text-red-600">
-          警告！您还没有选择模版渲染的个人资料!
-        </h1>
-        <h1 v-else class="text-blue-600">
-          简历使用资料：{{ profileStore.getCurrentProfile.name }}-{{
-            profileStore.getCurrentProfile.jobName
-          }}
-        </h1>
-      </div>
-      <div class="grid grid-cols-4 gap-4">
-        <div
-          :class="
-            profileStore.getCurrentProfile.name === null ? 'cursor-no-drop' : ''
-          "
-          class="bg-white p-2 select-none shadow grid grid-cols-1 place-items-center cursor-pointer hover:shadow-lg transition-all transition-duration-300 active:bg-gray-100"
-          v-for="template in templates"
-          @click="templateClickHandler(template.id)"
-        >
-          <img class="my-auto mt-4" :src="template.cover" alt="" />
-          <div class="font-bold">{{ template.name }}</div>
-          <div class="text-sm mb-4">{{ template.description }}</div>
+
+      <!-- 简历模版部分 -->
+      <div ref="templatesSection" class="bg-white rounded-2xl shadow-xl p-6 animate__animated animate__fadeInUp animate__delay-1s">
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 animate__animated animate__fadeInLeft animate__delay-1s">简历模版</h1>
+          <div>
+            <h1 v-if="!profileStore.isSelected" class="text-red-500 font-medium animate__animated animate__headShake animate__infinite">
+              警告！您还没有选择模版渲染的个人资料!
+            </h1>
+            <h1 v-else class="text-blue-600 font-medium animate__animated animate__fadeInRight animate__delay-1s">
+              简历使用资料：{{ profileStore.getCurrentProfile.name }}-{{
+                profileStore.getCurrentProfile.jobName
+              }}
+            </h1>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div
+            v-for="template in templates"
+            :key="template.id"
+            :class="[
+              'group bg-white rounded-xl shadow-md overflow-hidden transition-all duration-500 ease-in-out transform hover:-translate-y-2 hover:shadow-xl animate__animated animate__zoomIn',
+              profileStore.getCurrentProfile.name === null ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'
+            ]"
+            :style="{ 'animation-delay': template.id * 0.1 + 1 + 's' }"
+            @click="templateClickHandler(template.id)"
+          >
+            <div class="relative overflow-hidden">
+              <img 
+                class="h-48 mx-auto object-cover transition-all duration-500 ease-in-out transform group-hover:scale-110" 
+                :src="template.cover" 
+                alt="" 
+              />
+            </div>
+            <div class="p-4">
+              <h3 class="text-lg font-semibold text-gray-800">{{ template.name }}</h3>
+              <p class="text-sm text-gray-600 mt-1">{{ template.description }}</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.basic-button {
+  @apply px-4 py-2 text-white rounded-lg transition-all duration-300 hover:shadow-lg;
+}
+</style>
