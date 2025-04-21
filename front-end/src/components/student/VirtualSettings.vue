@@ -21,7 +21,7 @@
         <span class="inline-block w-10 h-10 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 flex items-center justify-center mr-3 shadow-md">
           <FileTextOutlined class="text-white" />
         </span>
-        选择论文
+        选择简历
       </h2>
 
       <div v-if="loading" class="flex justify-center py-6">
@@ -31,7 +31,7 @@
       </div>
 
       <div v-else-if="thesisList.length === 0" class="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-8 text-center">
-        <a-empty description="暂无可用论文" />
+        <a-empty description="暂无可用简历" />
       </div>
 
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

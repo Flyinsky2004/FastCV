@@ -331,12 +331,12 @@ func GetScore(c *gin.Context) {
 		c.JSON(200, entity.ErrorResponse[string](401, "请求参数错误"))
 		return
 	}
-	prompt := "你是一名毕业论文答辩教研室负责人，现在有学生给你他的答辩记录，你需要根据他的简历内容，对他的答辩表现进行打分，满分100分，最后你只需要返回一个整型数字即可。简历内容:" + request.Result.Virtual.Profile.Content + "这是你之前对他的评价:" + request.Result.Virtual.Description
+	prompt := "你是一名 HR，现在有面试者给你他的面试记录，你需要根据他的简历内容和面试评价，对他的面试面试者表现进行打分，满分100分，最后你只需要返回一个整型数字即可。简历内容:" + request.Result.Virtual.Profile.Content + "这是你之前对他的评价:" + request.Result.Virtual.Description
 	questionStr := "请根据学生的答辩记录，对他的答辩表现进行打分，满分100分，最后你只需要返回一个整型数字即可。"
 	dbjl := ""
 	for _, question := range request.Result.VirtualQuestions {
 		dbjl += "问题:" + question.Question + "\n"
-		dbjl += "学生回答:" + question.Answer + "\n"
+		dbjl += "面试者回答:" + question.Answer + "\n"
 	}
 	questionStr += dbjl
 
